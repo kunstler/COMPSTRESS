@@ -146,3 +146,37 @@ for (i in 1:nrow(Alandscape)){
   }   
 }
 
+
+###################################################
+###################################################
+### FUNCTION TO ANALYSE OUTPUTS
+
+function.table.levels <-  function(v) table(factor(v,levels=(0:100)/100))
+
+fun.gradient.table.levels <- function(res.list,t,imax){
+sp.abun.grad <- matrix(NA,nrow=101,ncol=imax/10)
+    for (i in 1:(imax/10)){
+       sp.abun.grad[,i] <- function.table.levels(res.list[[t]][,((i-1)*10+1):(i*10)])
+    }
+return(sp.abun.grad)
+
+} 
+
+fun.gradient.quantile.levels <- function(res.list,t,imax,probs=c(0.05,0.95)){
+sp.abun.grad <- matrix(NA,nrow=length(probs),ncol=imax/10)
+    for (i in 1:(imax/10)){
+       sp.abun.grad[,i] <- quantile(res.list[[t]][,((i-1)*10+1):(i*10)],probs=probs,na.rm=T)
+    }
+return(sp.abun.grad)
+} 
+
+fun.gradient.abundance.levels <- function(res.list,t,imax){
+sp.abun.grad <- matrix(NA,nrow=1,ncol=imax/10)
+    for (i in 1:(imax/10)){
+       sp.abun.grad[,i] <- sum(!is.na(res.list[[t]][,((i-1)*10+1):(i*10)]))
+    }
+return(sp.abun.grad)
+
+} 
+
+
