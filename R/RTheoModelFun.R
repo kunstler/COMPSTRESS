@@ -114,6 +114,28 @@ if(!is.na(Alandscape[i,j])){
         }   
   }  
 
+############################################################
+############################################################
+############################################################
+############################################################
+############################################################
+##### NEED TO CHANGE THIS FUNCTION TO THREE DIM TRADE OFF
+############################################################
+## function to update a given cell with new colonizer 
+function.colonize.cell <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape,dist.vec,array.i,array.j){
+if(!is.na(Alandscape[i,j])){
+  if(runif(1)>param.P){
+     vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
+     if(length(vec.c.seed)>0) {return(vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
+                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { return(Alandscape[i,j])}
+     }else{return(Alandscape[i,j])} 
+   }else{vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
+         if(length(vec.c.seed)>0) {return(vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=function.compet(vec.t=vec.c.seed,K=param.K))])} else { return(NA)}
+        }   
+  }  
+
+
+
 ## function.colonize.cell(i=3,j=2,disp.fun=disp.unif.fun,param.DISP=9,param.K=10,param.P=0.5,N=1,Alandscape,dist.vec,array.i,array.j)
 
 #######################################################################
