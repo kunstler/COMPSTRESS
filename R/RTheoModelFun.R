@@ -180,3 +180,16 @@ return(sp.abun.grad)
 } 
 
 
+#### plot quantile
+fun.plot.grad.quant <-  function(res.list,imax=300){
+gray.col.vec <- rev(gray.colors(n=length(res.list)))
+quant.temp <- fun.gradient.quantile.levels(res.list,t=1,imax=imax)
+plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1])
+lines(quant.temp[2,],col=gray.col.vec[1])
+
+for (i in 2:length(res.list)){
+ quant.temp <- fun.gradient.quantile.levels(res.list,t=i,imax=300)
+lines(quant.temp[1,],col=gray.col.vec[i])
+lines(quant.temp[2,],col=gray.col.vec[i])
+}
+}

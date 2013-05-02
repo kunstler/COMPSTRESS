@@ -53,188 +53,73 @@ array.i[10,20,]
 
 
 
-##################################
-##################################
-#### RUN A SIMULATION FOR A B time step
-## K 100 P 0
-A <-  15
-B <-  20
-res.list.k100.p0 <- list()
-res.list.k100.p0[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k100.p0[[j+1]] <- Alandscape
-
-gc()
-}
-)
-
-##################################
-##################################
-#### RUN A SIMULATION FOR A B time step
-## K 5 P 0
-A <-  15
-B <-  20
-res.list.k5.p0 <- list()
-res.list.k5.p0[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k5.p0[[j+1]] <- Alandscape
-
-gc()
-}
-)
-
-##################################
-##################################
-#### RUN A SIMULATION FOR A B time step
-## K 1 P 0
-A <-  15
-B <-  20
-res.list.k1.p0 <- list()
-res.list.k1.p0[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k1.p0[[j+1]] <- Alandscape
-
-gc()
-}
-)
-
-##################################
-##################################
-#### RUN A SIMULATION FOR A B time step
-## K 0.001 P 0
-A <-  15
-B <-  20
-res.list.k.001.p0 <- list()
-res.list.k.001.p0[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k.001.p0[[j+1]] <- Alandscape
-
-gc()
-}
-)
-
-
-
-
-
 
 ##################################
 ##################################
 #### RUN A SIMULATION FOR A B time step
 ## K 100 P 0
-A <-  15
-B <-  20
-res.list.k100.p1 <- list()
-res.list.k100.p1[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k100.p1[[j+1]] <- Alandscape
-
-gc()
-}
-)
+res.list.k100.p0 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
 
 ##################################
 ##################################
 #### RUN A SIMULATION FOR A B time step
 ## K 5 P 0
-A <-  15
-B <-  20
-res.list.k5.p1 <- list()
-res.list.k5.p1[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k5.p1[[j+1]] <- Alandscape
-
-gc()
-}
-)
+res.list.k5.p0 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
 
 ##################################
 ##################################
 #### RUN A SIMULATION FOR A B time step
 ## K 1 P 0
-A <-  15
-B <-  20
-res.list.k1.p1 <- list()
-res.list.k1.p1[[1]] <- Alandscape.init
-Alandscape <-  Alandscape.init
-
-system.time(
-for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k1.p1[[j+1]] <- Alandscape
-
-gc()
-}
-)
+res.list.k1.p0 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
 
 ##################################
 ##################################
 #### RUN A SIMULATION FOR A B time step
 ## K 0.001 P 0
-A <-  15
-B <-  20
-res.list.k.001.p1 <- list()
-res.list.k.001.p1[[1]] <- Alandscape.init
+res.list.k.001.p0 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+
+##################################
+##################################
+#### RUN A SIMULATION FOR A B time step
+## K 100 P 1
+res.list.k100.p1 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+##################################
+##################################
+#### RUN A SIMULATION FOR A B time step
+## K 5 P 1
+res.list.k5.p1 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+##################################
+##################################
+#### RUN A SIMULATION FOR A B time step
+## K 1 P 1
+res.list.k1.p1 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+##################################
+##################################
+#### RUN A SIMULATION FOR A B time step
+## K 0.001 P 1
+res.list.k.001.p1 <- fun.run.sim(A=15,B=20,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+#########
+## function run simulation
+fun.run.sim <- function(A,B,Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+res.list.temp <- list()
+res.list.temp[[1]] <- Alandscape.init
 Alandscape <-  Alandscape.init
 
-system.time(
 for(j in 1:A){
-for (i in 1:B){
-fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
-
-}  
-res.list.k.001.p1[[j+1]] <- Alandscape
-
+  for (i in 1:B){
+  fun.update.landscape(fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
+  }  
+res.list.temp[[j+1]] <- Alandscape
 gc()
 }
-)
-
-
+return(res.list.temp)
+}
 
 
 
@@ -251,7 +136,14 @@ gc()
 
 length(res.list)
 
-saveRDS(res.list,file="./output/res.list.rds")
+saveRDS(res.list.k100.p0,file="./output/res.list.k100.p0.rds")
+saveRDS(res.list.k5.p0,file="./output/res.list.k5.p0.rds")
+saveRDS(res.list.k1.p0,file="./output/res.list.k1.p0.rds")
+saveRDS(res.list.k.001.p0,file="./output/res.list.k.001.p0.rds")
+saveRDS(res.list.k100.p1,file="./output/res.list.k100.p1.rds")
+saveRDS(res.list.k5.p1,file="./output/res.list.k5.p1.rds")
+saveRDS(res.list.k1.p1,file="./output/res.list.k1.p1.rds")
+saveRDS(res.list.k.001.p1,file="./output/res.list.k.001.p1.rds")
 
 ####read old RDS
 res.list <- readRDS("./output/res.list.rds")
@@ -264,17 +156,16 @@ image(x=1:nrow(res.list[[1]]),y=1:ncol(res.list[[1]]),z=res.list[[1]],xlim=c(1,n
  image(x=1:nrow(res.list[[1]]),y=1:ncol(res.list[[1]]),z=res.list[[6]],xlim=c(1,ncol(res.list[[1]])),ylim=c(1,ncol(res.list[[1]])))
 image(x=1:nrow(res.list[[1]]),y=1:ncol(res.list[[1]]),z=res.list[[11]],xlim=c(1,ncol(res.list[[1]])),ylim=c(1,ncol(res.list[[1]])))
 
-#### plot quantile
-gray.col.vec <- rev(gray.colors(n=length(res.list)))
-quant.temp <- fun.gradient.quantile.levels(res.list,t=1,imax=300)
-plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1])
-lines(quant.temp[2,],col=gray.col.vec[1])
 
-for (i in 2:length(res.list)){
- quant.temp <- fun.gradient.quantile.levels(res.list,t=i,imax=300)
-lines(quant.temp[1,],col=gray.col.vec[i])
-lines(quant.temp[2,],col=gray.col.vec[i])
-}
+par(mfcol=c(4,2),mar=c(2,2,2,2))
+fun.plot.grad.quant(res.list.k100.p0)
+fun.plot.grad.quant(res.list.k5.p0)
+fun.plot.grad.quant(res.list.k1.p0)
+fun.plot.grad.quant(res.list.k.001.p0)
+fun.plot.grad.quant(res.list.k100.p1)
+fun.plot.grad.quant(res.list.k5.p1)
+fun.plot.grad.quant(res.list.k1.p1)
+fun.plot.grad.quant(res.list.k.001.p1)
 
 
 #### plot abundance
