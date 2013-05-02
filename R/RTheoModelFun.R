@@ -137,14 +137,35 @@ fun.clim.morta1 <- function(c,j,param.climate.stress){
 ############################
 ###### FUNCTION TO UPDATE THE LANDSCAPE ONE STEP
 
-fun.update.landscape<- function(fun.clim.morta,disp.fun,param.DISP,param.K,param.P,N,param.climate.stress,param.dist,dist.vec,array.i,array.j){
+fun.update.landscape<- function(Alandscape,fun.clim.morta,disp.fun,param.DISP,param.K,param.P,N,param.climate.stress,param.dist,dist.vec,array.i,array.j){
 for (i in 1:nrow(Alandscape)){ 
    for (j in 1:ncol(Alandscape)){
-       Alandscape[i,j]<<- function.colonize.cell(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape=Alandscape,dist.vec,array.i,array.j)  
-       Alandscape[i,j] <<- function.kill(i,j,Alandscape,param.climate.stress,param.dist,fun.clim.morta)
+       Alandscape[i,j]<- function.colonize.cell(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape=Alandscape,dist.vec,array.i,array.j)  
+       Alandscape[i,j] <- function.kill(i,j,Alandscape,param.climate.stress,param.dist,fun.clim.morta)
      }
-  }   
+  }
+return(Alandscape)
 }
+
+
+#########
+## function run simulation
+fun.run.sim <- function(A,B,Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+
+res.list.temp <- list()
+res.list.temp[[1]] <- Alandscape.init
+Alandscape <-  Alandscape.init
+
+for(j in 1:A){
+  for (i in 1:B){
+Alandscape <-  fun.update.landscape(Alandscape,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
+  }  
+res.list.temp[[j+1]] <- Alandscape
+gc()
+}
+return(res.list.temp)
+}
+
 
 
 ###################################################
@@ -184,7 +205,7 @@ return(sp.abun.grad)
 fun.plot.grad.quant <-  function(res.list,imax=300){
 gray.col.vec <- rev(gray.colors(n=length(res.list)))
 quant.temp <- fun.gradient.quantile.levels(res.list,t=1,imax=imax)
-plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1])
+plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1],ylab="Competitive ability traits",xlab="climate gradient")
 lines(quant.temp[2,],col=gray.col.vec[1])
 
 for (i in 2:length(res.list)){
@@ -192,4 +213,9 @@ for (i in 2:length(res.list)){
 lines(quant.temp[1,],col=gray.col.vec[i])
 lines(quant.temp[2,],col=gray.col.vec[i])
 }
+lines(quant.temp[1,],col="red")
+lines(quant.temp[2,],col="red")
+## add abundance for last step
+text(27,0.9,round( sum(!is.na(res.list[[length(res.list)]]))/ prod(dim(res.list[[length(res.list)]])),4))
+
 }
