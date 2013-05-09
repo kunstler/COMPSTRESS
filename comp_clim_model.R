@@ -131,40 +131,135 @@ res.list.k5.p1 <- readRDS(file="./output/res.list.k5.p1.rds")
 res.list.k1.p1 <- readRDS(file="./output/res.list.k1.p1.rds")
 res.list.k.001.p1 <- readRDS(file="./output/res.list.k.001.p1.rds")
 
- ## plot landscape at different time step ,mar=c(3,2,2,3,2)
-par(mfrow=c(2,4),mar=c(1,4,1,1),oma=c(1,4,2,1))
-image(x=1:nrow(res.list.k100.p0[[15]]),y=1:ncol(res.list.k100.p0[[15]]),z=res.list.k100.p0[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k5.p0[[15]]),y=1:ncol(res.list.k5.p0[[15]]),z=res.list.k5.p0[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k1.p0[[15]]),y=1:ncol(res.list.k1.p0[[15]]),z=res.list.k1.p0[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k.001.p0[[15]]),y=1:ncol(res.list.k.001.p0[[15]]),z=res.list.k.001.p0[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-#
-image(x=1:nrow(res.list.k100.p1[[15]]),y=1:ncol(res.list.k100.p1[[15]]),z=res.list.k100.p1[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k5.p1[[15]]),y=1:ncol(res.list.k5.p1[[15]]),z=res.list.k5.p1[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k1.p1[[15]]),y=1:ncol(res.list.k1.p1[[15]]),z=res.list.k1.p1[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-image(x=1:nrow(res.list.k.001.p1[[15]]),y=1:ncol(res.list.k.001.p1[[15]]),z=res.list.k.001.p1[[15]],asp=1,xlab=NA,ylab="cliamte gradient")
-
-## labels
-mtext("Premption", 2,  adj=0.80,padj=-1.5, cex=1.2, outer=TRUE)
-mtext("No Premption",2,adj=0.2,padj=-1.5, cex=1.2, outer=TRUE)
-
- mtext("K=100", 3   , adj=0.1, cex=1.2, outer=TRUE)
- mtext("K=5",  3   , adj=0.37, cex=1.2, outer=TRUE)
- mtext("K=100", 3  , adj=0.65, cex=1.2, outer=TRUE)
- mtext("K=0.001", 3   , adj=0.92, cex=1.2, outer=TRUE)
 
 
+### NEED to read all outputs from cluster.
 
-par(mfcol=c(4,2),mar=c(4,4,2,2))
-fun.plot.grad.quant(res.list.k100.p0)
-fun.plot.grad.quant(res.list.k5.p0)
-fun.plot.grad.quant(res.list.k1.p0)
-fun.plot.grad.quant(res.list.k.001.p0)
-#
-fun.plot.grad.quant(res.list.k100.p1)
-fun.plot.grad.quant(res.list.k5.p1)
-fun.plot.grad.quant(res.list.k1.p1)
-fun.plot.grad.quant(res.list.k.001.p1)
+## read file in output cluster
+list.files(path="./output_cluster",pattern="p0.disp20.r")
 
+### create vector names of files to read from cluster for the plots
+names.p0.disp20.dist0.1 <- c( "res.list.k100.p0.disp20.rds" ,  "res.list.k5.p0.disp20.rds", "res.list.k1.p0.disp20.rds" ,"res.list.k.001.p0.disp20.rds" )
+names.p0.5.disp20.dist0.1 <- c( "res.list.k100.p0.5.disp20.rds" ,  "res.list.k5.p0.5.disp20.rds", "res.list.k1.p0.5.disp20.rds" ,"res.list.k.001.p0.5.disp20.rds" )
+names.p1.disp20.dist0.1 <- c( "res.list.k100.p1.disp20.rds" ,  "res.list.k5.p1.disp20.rds", "res.list.k1.p1.disp20.rds" ,"res.list.k.001.p1.disp20.rds" )
+
+names.p0.disp20.dist0.5 <- c( "res.list.k100.p0.disp20.dist0.5.rds" ,  "res.list.k5.p0.disp20.dist0.5.rds", "res.list.k1.p0.disp20.dist0.5.rds" ,"res.list.k.001.p0.disp20.dist0.5.rds" )
+names.p0.5.disp20.dist0.5 <- c( "res.list.k100.p0.5.disp20.dist0.5.rds" ,  "res.list.k5.p0.5.disp20.dist0.5.rds", "res.list.k1.p0.5.disp20.dist0.5.rds" ,"res.list.k.001.p0.5.disp20.dist0.5.rds" )
+names.p1.disp20.dist0.5 <- c( "res.list.k100.p1.disp20.dist0.5.rds" ,  "res.list.k5.p1.disp20.dist0.5.rds", "res.list.k1.p1.disp20.dist0.5.rds" ,"res.list.k.001.p1.disp20.dist0.5.rds" )
+
+
+names.p0.disp2.dist0.1 <- c( "res.list.k100.p0.disp2.rds" ,  "res.list.k5.p0.disp2.rds", "res.list.k1.p0.disp2.rds" ,"res.list.k.001.p0.disp2.rds" )
+names.p0.5.disp2.dist0.1 <- c( "res.list.k100.p0.5.disp2.rds" ,  "res.list.k5.p0.5.disp2.rds", "res.list.k1.p0.5.disp2.rds" ,"res.list.k.001.p0.5.disp2.rds" )
+names.p1.disp2.dist0.1 <- c( "res.list.k100.p1.disp2.rds" ,  "res.list.k5.p1.disp2.rds", "res.list.k1.p1.disp2.rds" ,"res.list.k.001.p1.disp2.rds" )
+
+names.p0.disp.2.dist0.1 <- c( "res.list.k100.p0.disp.2.rds" ,  "res.list.k5.p0.disp.2.rds", "res.list.k1.p0.disp.2.rds" ,"res.list.k.001.p0.disp.2.rds" )
+names.p0.5.disp.2.dist0.1 <- c( "res.list.k100.p0.5.disp.2.rds" ,  "res.list.k5.p0.5.disp.2.rds", "res.list.k1.p0.5.disp.2.rds" ,"res.list.k.001.p0.5.disp.2.rds" )
+names.p1.disp.2.dist0.1 <- c( "res.list.k100.p1.disp.2.rds" ,  "res.list.k5.p1.disp.2.rds", "res.list.k1.p1.disp.2.rds" ,"res.list.k.001.p1.disp.2.rds" )
+
+
+#################
+### PLOTS OUTPUTS OF CLUSTER SIMULATION
+
+
+## disp20
+pdf("./figs/Firstsimul.F20.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp20.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+lapply(names.p0.5.disp20.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+lapply(names.p1.disp20.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
+dev.off()
+
+## par(mfcol=c(4,2),mar=c(4,4,2,2))
+## lapply(names.p0.disp20.dist0.5 ,fun.plot.grad.quant.cluster,path="output_cluster")
+## lapply(names.p1.disp20.dist0.5 ,fun.plot.grad.quant.cluster,path="output_cluster")
+
+## disp2
+pdf("./figs/Firstsimul.F2.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp2.dist0.1 ,fun.plot.grad.quant.cluster
+       ,path="output_cluster")
+lapply(names.p0.5.disp2.dist0.1 ,fun.plot.grad.quant.cluster
+       ,path="output_cluster")
+lapply(names.p1.disp2.dist0.1 ,fun.plot.grad.quant.cluster
+       ,path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
+dev.off()
+
+## disp 0.2
+pdf("./figs/Firstsimul.F.2.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp.2.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+lapply(names.p0.5.disp.2.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+lapply(names.p1.disp.2.dist0.1 ,fun.plot.grad.quant.cluster,
+       path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
+dev.off()
+
+
+################### image
+
+## plot landscape at last time step DISP20
+pdf("./figs/Firstsimul.image.F20.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp20.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p0.5.disp20.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p1.disp20.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+dev.off()
+
+## plot landscape at last time step DISP2
+pdf("./figs/Firstsimul.image.F2.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p0.5.disp2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p1.disp2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+dev.off()
 
 #### plot abundance
 gray.col.vec <- rev(gray.colors(n=length(res.list)))
@@ -176,4 +271,4 @@ abun.temp <- fun.gradient.abundance.levels(res.list,t=i,imax=300)
 lines(abun.temp[1,],col=gray.col.vec[i])
 }
 
-
+?assign

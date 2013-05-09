@@ -122,7 +122,9 @@ if(!is.na(Alandscape[i,j])){
 ##### NEED TO CHANGE THIS FUNCTION TO THREE DIM TRADE OFF
 ############################################################
 ## function to update a given cell with new colonizer 
-function.colonize.cell <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape,dist.vec,array.i,array.j){
+
+## AlandscapeCOMP landscape with competition type 
+function.colonize.cell.3dim <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape,AlandscapeCOMP,dist.vec,array.i,array.j){
 if(!is.na(Alandscape[i,j])){
   if(runif(1)>param.P){
      vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
@@ -180,7 +182,12 @@ Alandscape <-  Alandscape.init
 
 for(j in 1:A){
   for (i in 1:B){
-Alandscape <-  fun.update.landscape(Alandscape,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j)
+Alandscape <-  fun.update.landscape(Alandscape=Alandscape,
+fun.clim.morta=fun.clim.morta,disp.fun=disp.fun,param.DISP=
+param.DISP,param.K=param.K,param.P=param.P,N=N,
+  param.climate.stress=param.climate.stress,
+  param.dist=param.dist,dist.vec=dist.vec,array.i=array.i,
+                                    array.j=array.j)
   }  
 res.list.temp[[j+1]] <- Alandscape
 gc()
@@ -194,21 +201,25 @@ return(res.list.temp)
 ###################################################
 ### FUNCTION TO ANALYSE OUTPUTS
 
-function.table.levels <-  function(v) table(factor(v,levels=(0:100)/100))
+function.table.levels <-  function(v) table(factor(v,levels=
+                                          (0:100)/100))
 
 fun.gradient.table.levels <- function(res.list,t,imax){
 sp.abun.grad <- matrix(NA,nrow=101,ncol=imax/10)
     for (i in 1:(imax/10)){
-       sp.abun.grad[,i] <- function.table.levels(res.list[[t]][,((i-1)*10+1):(i*10)])
+       sp.abun.grad[,i] <- function.table.levels(res.list[[t]][,
+                            ((i-1)*10+1):(i*10)])
     }
 return(sp.abun.grad)
 
 } 
 
-fun.gradient.quantile.levels <- function(res.list,t,imax,probs=c(0.05,0.95)){
+fun.gradient.quantile.levels <- function(res.list,t,imax,probs=
+  c(0.05,0.95)){
 sp.abun.grad <- matrix(NA,nrow=length(probs),ncol=imax/10)
     for (i in 1:(imax/10)){
-       sp.abun.grad[,i] <- quantile(res.list[[t]][,((i-1)*10+1):(i*10)],probs=probs,na.rm=T)
+       sp.abun.grad[,i] <- quantile(res.list[[t]][,((i-1)*10+1):(i*10)]
+                                    ,probs=probs,na.rm=T)
     }
 return(sp.abun.grad)
 } 
@@ -224,10 +235,12 @@ return(sp.abun.grad)
 
 
 #### plot quantile
-fun.plot.grad.quant <-  function(res.list,imax=300){
+fun.plot.grad.quant.cluster <-  function(res.name,imax=300,path){
+res.list <- readRDS(file=paste("./",path,"/",res.name,sep=""))
 gray.col.vec <- rev(gray.colors(n=length(res.list)))
 quant.temp <- fun.gradient.quantile.levels(res.list,t=1,imax=imax)
-plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1],ylab="Competitive ability traits",xlab="climate gradient")
+plot(quant.temp[1,],type="l",ylim=c(0,1),col=gray.col.vec[1],
+     ylab="Competitive ability traits",xlab="climate gradient")
 lines(quant.temp[2,],col=gray.col.vec[1])
 
 for (i in 2:length(res.list)){
@@ -238,6 +251,22 @@ lines(quant.temp[2,],col=gray.col.vec[i])
 lines(quant.temp[1,],col="red")
 lines(quant.temp[2,],col="red")
 ## add abundance for last step
-text(27,0.9,round( sum(!is.na(res.list[[length(res.list)]]))/ prod(dim(res.list[[length(res.list)]])),4))
+text(27,0.9,round( sum(!is.na(res.list[[length(res.list)]]))/prod(
+  dim(res.list[[length(res.list)]])),4))
 
+}
+
+### plot image of landscape
+fun.image.landscape <-  function(res.name,path,t=length(res.list)){
+res.list <- readRDS(file=paste("./",path,"/",res.name,sep=""))
+image(x=1:nrow(res.list[[t]]),y=1:ncol(res.list[[t]]),z=res.list[[t]]
+   ,asp=1,xlab=NA,ylab="climate gradient")
+}
+
+### function read rds file from cluster
+
+fun.reads.rds.seq <- function(filename,path) {
+  object.name <- sub("\\.rds$", "", basename(filename))
+  assign(object.name, readRDS(paste("./",path,"/",filename,sep=""))
+         ,.GlobalEnv)
 }
