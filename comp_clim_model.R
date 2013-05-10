@@ -146,6 +146,17 @@ res.list.k.001.p1 <- readRDS(file="./output/res.list.k.001.p1.rds")
 ##################################
 ### TEST SUCCESSION
 
+## plot 3d trade off 
+fun.trade.off.3d <- function(X,Y){
+   c <- (1-(X+Y))
+if(sum(c<0)) {c[c<0] <- NA}
+return(c)}
+
+s.matrix <- outer(X=(0:100)/100,Y=(0:100)/100,FUN=fun.trade.off.3d) 
+pdf("./figs/3dtrade.off.pdf")
+image(x=(0:100)/100,y=(0:100)/100,z=s.matrix,xlab="Early Successional Competitive Ability",ylab="Late Successional Competitive Ability")
+dev.off()
+
 ##################################
 ## initialization  Succ
 ## Landscapoe matrix
@@ -154,27 +165,54 @@ NN <- 100  ## size of landscape (classicaly 256)
 N <-  1 ## number of neigborhood cell 1 = moor neigborhood
 AlandscapeE <-  matrix(NA,nrow=NN,ncol=Nlandscape*NN)
 AlandscapeL <- AlandscapeE
-Alandscape.Succ <- AlandscapeE
+Alandscape.Succ <- matrix("NO",nrow=NN,ncol=Nlandscape*NN)
 
 ## climate gradient
 climate.grad <-  seq(from=0,to=1,length=Nlandscape*NN)
 
 ## init landscape with random draw of competition traits
 init.temp <- sample(1:(NN*NN*Nlandscape),size=round(NN*NN*Nlandscape*0.5))
-vec.land <- as.vector(Alandscape)
-vec.landE <- as.vector(Alandscape)
-vec.landL <- as.vector(Alandscape)
-vec.land.Succ <- as.vector(Alandscape)
-vec.land[init.temp] <- sample((0:100)/100,size=round(NN*NN*Nlandscape*0.5),replace=T)
-vec.landE[init.temp] <- vec.land[init.temp]*sample((0:100)/100,size=round(NN*NN*Nlandscape*0.5),replace=T)
-vec.landL[init.temp] <-vec.land[init.temp] -vec.landE[init.temp]
+vec.land <- as.vector(AlandscapeE)
+vec.landE <- as.vector(AlandscapeE)
+vec.landL <- as.vector(AlandscapeE)
+vec.land.Succ <- as.vector(Alandscape.Succ)
+
+### create random species with a tradeoff between competition stress tolerance and eraly and late succ compet
+vec.land[init.temp] <- sample((0:100),size=round(NN*NN*Nlandscape*0.5),replace=T) ## stress tolerance
+
+## fun to create random early succ and late suss competitive ability
+fun.sample.compet <-  function(x){
+  sample(0:x,size=1)
+}
+vec.landE[init.temp] <- sapply(vec.land[init.temp],FUN=fun.sample.compet)
+vec.landL[init.temp] <-(vec.land[init.temp] -vec.landE[init.temp])/100
+vec.landE[init.temp] <- vec.landE[init.temp]/100
+
+## par(mfrow=c(2,2))
+## x   <- cbind(vec.landE[init.temp] ,vec.landL[init.temp])
+## data <- as.data.frame(x)
+## names(data) <- c("X","Y")
+## colors  <- densCols(x)
+## plot(x, col=colors, pch=20,cex=0.25,xlab="C.E",ylab="C.L")
+## x   <- cbind(1-vec.land[init.temp] ,vec.landL[init.temp])
+## data <- as.data.frame(x)
+## names(data) <- c("X","Y")
+## colors  <- densCols(x)
+## plot(x, col=colors, pch=20,cex=0.25,xlab="S",ylab="C.L")
+## x   <- cbind(vec.landE[init.temp] ,1-vec.land[init.temp])
+## data <- as.data.frame(x)
+## names(data) <- c("X","Y")
+## colors  <- densCols(x)
+## plot(x, col=colors, pch=20,cex=0.25,xlab="C.E",ylab="S")
+
+
 vec.land.Succ[init.temp] <-  rep("E",round(NN*NN*Nlandscape*0.5))
 AlandscapeE <- matrix(vec.landE,nrow=NN,ncol=NN*Nlandscape)
 AlandscapeL <- matrix(vec.landL,nrow=NN,ncol=NN*Nlandscape)
 Alandscape.Succ <- matrix(vec.land.Succ,nrow=NN,ncol=NN*Nlandscape)
-AlandscapeE.init <-  AlandscapeE
-AlandscapeL.init <-  AlandscapeL
-Alandscape.Succ.init <-  Alandscape.Succ
+
+Alandscape.LIST.init <-  list(AlandscapeE,AlandscapeL,Alandscape.Succ)
+
 
 ## create a table of 8 neigborhood cells
 
@@ -183,7 +221,7 @@ list.temp <- function.array.neigcells(NN,Nlandscape)
 array.i <- list.temp[[1]]
 array.j <- list.temp[[2]]
 rm(list.temp)
-array.i[10,20,]
+array.i[100,20,]
 
 
 
@@ -192,10 +230,10 @@ array.i[10,20,]
 ##################################
 #### RUN A SIMULATION SUCCESSION TES  FOR A B time step
 ## K 5 P 1
-res.list.k.001.p1 <- fun.run.sim.Succ(A=2,B=2,Alandscape.init=Alandscape.init,fun.clim.morta=fun.clim.morta1,
+res.list.Succ.k5.p1.Succ0.25 <- fun.run.sim.Succ(A=3,B=20,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
 disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.25,dist.vec,array.i,array.j)
 
-
+  image(res.list.Succ.k5.p1[[1]][[3]] )
 
 
 ### NEED to read all outputs from cluster.

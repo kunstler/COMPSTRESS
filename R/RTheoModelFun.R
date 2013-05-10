@@ -48,8 +48,8 @@ for (i in 1:NN)
  for (j in 1:(NN*Nlandscape))
    {
 
-n.i <-  function.torus(i,N,imax=dim(Alandscape)[1])
-n.j <- function.reflex(i=j,N,imax=dim(Alandscape)[2])
+n.i <-  function.torus(i,N,imax=NN)
+n.j <- function.reflex(i=j,N,imax=NN*Nlandscape)
 array.i[i,j,]<-  c(rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N),n.i,
                    rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N))
 array.j[i,j,]<- c(rep(n.j[1:N],each=2*N+1),rep(j,each=2*N),
@@ -76,6 +76,21 @@ ccc.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],
 disp.seed <-  rpois(rep(1,length=length(ccc.vec)),lambda=
                     disp.fun(dist.vec,ccc.vec,param.DISP,N))
 return(as.vector(na.exclude(c(Alandscape[i,j],rep(ccc.vec,disp.seed)))))
+}
+
+### PROBABLY NOT THE MOST EFFEICIENT TO IMPROVE /THERE WAS NEED TO INCLUDE THE INDIVIDUAL PRESENT IN THE CELL Succ
+function.disperse.Succ.to.ij <- function(i,j,disp.fun,param.DISP,N,
+Alandscape.LIST,dist.vec,array.i,array.j){
+
+ccc.E.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],
+                  j=array.j[i,j,],mat=Alandscape.LIST[[1]])
+ccc.L.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],
+                  j=array.j[i,j,],mat=Alandscape.LIST[[2]])
+
+disp.seed <-  rpois(rep(1,length=length(ccc.E.vec)),lambda=
+                    disp.fun(dist.vec,ccc.vec=ccc.E.vec,param.DISP,N))
+return(list(as.vector(na.exclude(c(Alandscape.LIST[[1]][i,j],rep(ccc.E.vec,disp.seed)))),
+        as.vector(na.exclude(c(Alandscape.LIST[[2]][i,j],rep(ccc.L.vec,disp.seed))))))
 }
 
 
@@ -131,24 +146,33 @@ AlandscapeL <-  Alandscape.LIST[[2]]
 Alandscape.Succ <-  Alandscape.LIST[[3]]
 
 if(!is.na(Alandscape.Succ[i,j])){
-  
-
-    if(Alandacape.Succ[i,j]=="E"){
-           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeE,dist.vec,array.i,array.j)
-     if(length(vec.c.seed)>0) {vec.res[1] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
-                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[1] <-(AlandscapeE[i,j])}
+    if(Alandscape.Succ[i,j]=="E"){
+           vec.c.seed <- function.disperse.Succ.to.ij(i,j,disp.fun,param.DISP,N,Alandscape.LIST,dist.vec,array.i,array.j)
+     if(length(vec.c.seed[[1]])>0) {winner <- (sample(1:length(vec.c.seed[[1]]),size=1,prob=
+                  function.compet(vec.t=vec.c.seed[[1]],K=param.K)))
+                      vec.res[1] <- vec.c.seed[[1]][winner]
+                      vec.res[2] <- vec.c.seed[[2]][winner]  } else { vec.res[1] <-(Alandscape.LIST[[1]][i,j])
+                                                                    vec.res[2] <-(Alandscape.LIST[[2]][i,j])}
      }
 
-  if(Alandacape.Succ[i,j]=="L"){
-           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeL,dist.vec,array.i,array.j)
-     if(length(vec.c.seed)>0) {vec.res[2] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
-                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[2] <-(AlandscapeE[i,j])}
+  if(Alandscape.Succ[i,j]=="L"){
+           vec.c.seed <- function.disperse.Succ.to.ij(i,j,disp.fun,param.DISP,N,Alandscape.LIST,dist.vec,array.i,array.j)
+     if(length(vec.c.seed[[2]])>0) {winner <- (sample(1:length(vec.c.seed[[2]]),size=1,prob=
+                  function.compet(vec.t=vec.c.seed[[2]],K=param.K)))
+                      vec.res[1] <- vec.c.seed[[1]][winner]
+                      vec.res[2] <- vec.c.seed[[2]][winner]  } else { vec.res[1] <-(Alandscape.LIST[[1]][i,j])
+                                                                    vec.res[2] <-(Alandscape.LIST[[2]][i,j])}
      }
 
    }else{
-           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeE,dist.vec,array.i,array.j)
-     if(length(vec.c.seed)>0) {vec.res[1] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
-                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[1] <-NA}
+          vec.c.seed <- function.disperse.Succ.to.ij(i,j,disp.fun,param.DISP,N,Alandscape.LIST,dist.vec,array.i,array.j)
+     if(length(vec.c.seed[[1]])>0) {winner <- (sample(1:length(vec.c.seed[[1]]),size=1,prob=
+                  function.compet(vec.t=vec.c.seed[[1]],K=param.K)))
+                      vec.res[1] <- vec.c.seed[[1]][winner]
+                      vec.res[2] <- vec.c.seed[[2]][winner]  } else { vec.res[1] <-NA
+                                                                    vec.res[2] <-NA}
+ 
+
 }
   return(vec.res)      }   
   
@@ -175,13 +199,14 @@ fun.clim.morta1 <- function(c,j,param.climate.stress){
 1-c*climate.grad[j]
 }
 
-## function.kill(i=1,j=20,Alandscape,param.climate.stress=NA,param.dist=0.0,fun.clim.morta=fun.clim.morta1)
+## function.kill(i=1,j=20,Alandscape=AlandscapeE+AlandscapeL,param.climate.stress=NA,param.dist=0.0,fun.clim.morta=fun.clim.morta1)
+
 
 ####
 ## FUNCTION FOR SUCCESSION FROM E TO L
 fun.Succ <-  function(i,j,Alandscape.Succ,param.Succ){
 Succ.temp <- Alandscape.Succ[i,j]
-if(Alandacape.Succ[i,j]=="E"){
+if(Alandscape.Succ[i,j]=="E"){
     if(runif(1)<param.Succ){Succ.temp <- "L"}
   }
     return(Succ.temp)
@@ -208,16 +233,16 @@ param.K,param.P,N,param.climate.stress,param.dist,param.Succ,dist.vec,array.i,ar
 for (i in 1:nrow(Alandscape.LIST[[1]])){ 
    for (j in 1:ncol(Alandscape.LIST[[1]])){
        vec.EL <- function.colonize.cell.Succ(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape.LIST=Alandscape.LIST,dist.vec,array.i,array.j)  
-       Alandscape.LIST[[1]][i,j] <- vecEL[1]
-       Alandscape.LIST[[2]][i,j] <- vecEL[2]
-       
+       Alandscape.LIST[[1]][i,j] <- vec.EL[1]
+       Alandscape.LIST[[2]][i,j] <- vec.EL[2]
+  
        Alandscape.LIST[[3]][i,j] <- fun.Succ(i,j,Alandscape.Succ,param.Succ)
 
        morta <- function.kill(i,j,Alandscape=Alandscape.LIST[[1]]+Alandscape.LIST[[2]],param.climate.stress,param.dist,fun.clim.morta)
        if(is.na(morta)){
         Alandscape.LIST[[1]][i,j] <- NA
         Alandscape.LIST[[2]][i,j] <- NA
-        Alandscape.LIST[[3]][i,j] <- NA
+        Alandscape.LIST[[3]][i,j] <- "NO"
         }  
      }
   }
