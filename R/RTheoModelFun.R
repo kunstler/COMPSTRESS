@@ -11,12 +11,12 @@
 # torus function return the N neasrest cells with a torus for one dimension i
 function.torus <-  function(i,N,imax){
    if((i+N)>imax){it <- c(i-(N:1),i+(1:N))
-                    it[it>imax] <-  1:(i+N-imax)
-                    return(it)} else{if((i-N)<1){
-                                it <- c(i-(N:1),i+(1:N))
-                                it[it<1] <-  (imax+(i-N)):imax
-                                return(it)} else {it <- c(i-(N:1),i+(1:N))
-                                                 return(it)}
+      it[it>imax] <-  1:(i+N-imax)
+      return(it)} else{if((i-N)<1){
+                  it <- c(i-(N:1),i+(1:N))
+                  it[it<1] <-  (imax+(i-N)):imax
+                    return(it)} else {it <- c(i-(N:1),i+(1:N))
+                                 return(it)}
                                     }
    }
 
@@ -26,12 +26,12 @@ function.torus <-  function(i,N,imax){
 ## return the N nearest cells with a reflexion
 function.reflex <-  function(i,N,imax){
    if((i+N)>imax){it <- c(i-(N:1),i+(1:N))
-                    it[it>imax] <-  (imax):(2*imax-(i+N-1))
-                    return(it)} else{if((i-N)<1){
-                                it <- c(i-(N:1),i+(1:N))
-                                it[it<1] <-  (1:(N-i+1))
-                                return(it)} else {it <- c(i-(N:1),i+(1:N))
-                                                 return(it)}
+       it[it>imax] <-  (imax):(2*imax-(i+N-1))
+       return(it)} else{if((i-N)<1){
+                   it <- c(i-(N:1),i+(1:N))
+                   it[it<1] <-  (1:(N-i+1))
+                   return(it)} else {it <- c(i-(N:1),i+(1:N))
+                               return(it)}
                                     }
    }
 
@@ -40,7 +40,7 @@ function.reflex <-  function(i,N,imax){
 ## FUNCTION CREATING AN ARRAY OF NEIGHBORHOOD CELLS
 
 function.array.neigcells <-  function(NN,Nlandscape){
-array.i <- array(NA,dim=c(NN ,NN*Nlandscape,8))
+array.i <- array(NA,dim=c(NN,NN*Nlandscape,8))
 array.j <- array(NA,dim=c(NN,NN*Nlandscape,8))
       
 for (i in 1:NN)
@@ -50,10 +50,13 @@ for (i in 1:NN)
 
 n.i <-  function.torus(i,N,imax=dim(Alandscape)[1])
 n.j <- function.reflex(i=j,N,imax=dim(Alandscape)[2])
-array.i[i,j,]<-  c(rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N),n.i,rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N))
-array.j[i,j,]<- c(rep(n.j[1:N],each=2*N+1),rep(j,each=2*N),rep(n.j[(N+1):(2*N)],each=2*N+1))
+array.i[i,j,]<-  c(rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N),n.i,
+                   rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N))
+array.j[i,j,]<- c(rep(n.j[1:N],each=2*N+1),rep(j,each=2*N),
+                  rep(n.j[(N+1):(2*N)],each=2*N+1))
 
-}}
+   }
+}
 return(list(array.i,array.j))
 }
 
@@ -65,14 +68,16 @@ return(list(array.i,array.j))
 ## function to get the matrix value
 function.return.cell <- function(n,i,j,mat) return(mat[i[n],j[n]])
 
-### PROBABLY NOT THE MOST EFFEICIENT TO IMPROVE
-function.disperse.to.ij <- function(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j){
-ccc.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],j=array.j[i,j,],mat=Alandscape)
-disp.seed <-  rpois(rep(1,length=length(ccc.vec)),lambda=disp.fun(dist.vec,ccc.vec,param.DISP,N))
-return(as.vector(na.exclude(rep(ccc.vec,disp.seed))))
+### PROBABLY NOT THE MOST EFFEICIENT TO IMPROVE /THERE WAS NEED TO INCLUDE THE INDIVIDUAL PRESENT IN THE CELL
+function.disperse.to.ij <- function(i,j,disp.fun,param.DISP,N,
+Alandscape ,dist.vec,array.i,array.j){
+ccc.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],
+                  j=array.j[i,j,],mat=Alandscape)
+disp.seed <-  rpois(rep(1,length=length(ccc.vec)),lambda=
+                    disp.fun(dist.vec,ccc.vec,param.DISP,N))
+return(as.vector(na.exclude(c(Alandscape[i,j],rep(ccc.vec,disp.seed)))))
 }
 
-## function.disperse.to.ij(i=20,j=3,disp.fun=disp.unif.fun,param.DISP=9,N,Alandscape,dist.vec,array.i,array.j)
 
 #####
 ## DISPERSAL FUNCTION IN N CELL UNIFORM
@@ -101,11 +106,12 @@ return(apply(mt,MARGIN=1,FUN=prod)/sum(apply(mt,MARGIN=1,FUN=prod)))
 }
 
 ############################################################
-## function to update a given cell with new colonizer 
+## function to update a given cell with new colonizer
+### THIS NEZ FUNCTION IS CHANGED TO HAVE TO STATE OF THE CELL EITHER EARLY SUCC OR LATE SUCC
 function.colonize.cell <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape,dist.vec,array.i,array.j){
 if(!is.na(Alandscape[i,j])){
   if(runif(1)>param.P){
-     vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
+           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
      if(length(vec.c.seed)>0) {return(vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
                   function.compet(vec.t=vec.c.seed,K=param.K))])} else { return(Alandscape[i,j])}
      }else{return(Alandscape[i,j])} 
@@ -115,26 +121,38 @@ if(!is.na(Alandscape[i,j])){
   }  
 
 ############################################################
-############################################################
-############################################################
-############################################################
-############################################################
-##### NEED TO CHANGE THIS FUNCTION TO THREE DIM TRADE OFF
-############################################################
-## function to update a given cell with new colonizer 
+## function to update a given cell with new colonizer
+### THIS NEZ FUNCTION IS CHANGED TO HAVE TO STATE OF THE CELL EITHER EARLY SUCC OR LATE SUCC
+function.colonize.cell.Succ <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,
+Alandscape.LIST,dist.vec,array.i,array.j){
+vec.res <- c(NA,NA)
+AlandscapeE <-  Alandscape.LIST[[1]]
+AlandscapeL <-  Alandscape.LIST[[2]]
+Alandscape.Succ <-  Alandscape.LIST[[3]]
 
-## AlandscapeCOMP landscape with competition type 
-function.colonize.cell.3dim <-  function(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape,AlandscapeCOMP,dist.vec,array.i,array.j){
-if(!is.na(Alandscape[i,j])){
-  if(runif(1)>param.P){
-     vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
-     if(length(vec.c.seed)>0) {return(vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
-                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { return(Alandscape[i,j])}
-     }else{return(Alandscape[i,j])} 
-   }else{vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,Alandscape,dist.vec,array.i,array.j)
-         if(length(vec.c.seed)>0) {return(vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=function.compet(vec.t=vec.c.seed,K=param.K))])} else { return(NA)}
-        }   
-  }  
+if(!is.na(Alandscape.Succ[i,j])){
+  
+
+    if(Alandacape.Succ[i,j]=="E"){
+           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeE,dist.vec,array.i,array.j)
+     if(length(vec.c.seed)>0) {vec.res[1] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
+                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[1] <-(AlandscapeE[i,j])}
+     }
+
+  if(Alandacape.Succ[i,j]=="L"){
+           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeL,dist.vec,array.i,array.j)
+     if(length(vec.c.seed)>0) {vec.res[2] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
+                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[2] <-(AlandscapeE[i,j])}
+     }
+
+   }else{
+           vec.c.seed <- function.disperse.to.ij(i,j,disp.fun,param.DISP,N,AlandscapeE,dist.vec,array.i,array.j)
+     if(length(vec.c.seed)>0) {vec.res[1] <- (vec.c.seed[sample(1:length(vec.c.seed),size=1,prob=
+                  function.compet(vec.t=vec.c.seed,K=param.K))])} else { vec.res[1] <-NA}
+}
+  return(vec.res)      }   
+  
+
 
 
 
@@ -150,6 +168,8 @@ if (is.na(Alandscape[i,j])){return(NA)}else{  if(runif(1)<param.dist) {return(NA
   }}
 }
 
+
+
 ## climate mortality function
 fun.clim.morta1 <- function(c,j,param.climate.stress){
 1-c*climate.grad[j]
@@ -157,11 +177,22 @@ fun.clim.morta1 <- function(c,j,param.climate.stress){
 
 ## function.kill(i=1,j=20,Alandscape,param.climate.stress=NA,param.dist=0.0,fun.clim.morta=fun.clim.morta1)
 
+####
+## FUNCTION FOR SUCCESSION FROM E TO L
+fun.Succ <-  function(i,j,Alandscape.Succ,param.Succ){
+Succ.temp <- Alandscape.Succ[i,j]
+if(Alandacape.Succ[i,j]=="E"){
+    if(runif(1)<param.Succ){Succ.temp <- "L"}
+  }
+    return(Succ.temp)
+}
+
 ############################
 ############################
 ###### FUNCTION TO UPDATE THE LANDSCAPE ONE STEP
 
-fun.update.landscape<- function(Alandscape,fun.clim.morta,disp.fun,param.DISP,param.K,param.P,N,param.climate.stress,param.dist,dist.vec,array.i,array.j){
+fun.update.landscape<- function(Alandscape,fun.clim.morta,disp.fun,param.DISP,param.K,param.P,N,param.climate.stress,
+param.dist,dist.vec,array.i,array.j){
 for (i in 1:nrow(Alandscape)){ 
    for (j in 1:ncol(Alandscape)){
        Alandscape[i,j]<- function.colonize.cell(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape=Alandscape,dist.vec,array.i,array.j)  
@@ -172,9 +203,32 @@ return(Alandscape)
 }
 
 
+fun.update.landscape.Succ<- function(Alandscape.LIST,fun.clim.morta,disp.fun,param.DISP,
+param.K,param.P,N,param.climate.stress,param.dist,param.Succ,dist.vec,array.i,array.j){
+for (i in 1:nrow(Alandscape.LIST[[1]])){ 
+   for (j in 1:ncol(Alandscape.LIST[[1]])){
+       vec.EL <- function.colonize.cell.Succ(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape.LIST=Alandscape.LIST,dist.vec,array.i,array.j)  
+       Alandscape.LIST[[1]][i,j] <- vecEL[1]
+       Alandscape.LIST[[2]][i,j] <- vecEL[2]
+       
+       Alandscape.LIST[[3]][i,j] <- fun.Succ(i,j,Alandscape.Succ,param.Succ)
+
+       morta <- function.kill(i,j,Alandscape=Alandscape.LIST[[1]]+Alandscape.LIST[[2]],param.climate.stress,param.dist,fun.clim.morta)
+       if(is.na(morta)){
+        Alandscape.LIST[[1]][i,j] <- NA
+        Alandscape.LIST[[2]][i,j] <- NA
+        Alandscape.LIST[[3]][i,j] <- NA
+        }  
+     }
+  }
+return(Alandscape.LIST)
+}
+
+
 #########
 ## function run simulation
-fun.run.sim <- function(A,B,Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
+fun.run.sim <- function(A,B,Alandscape.init,fun.clim.morta=fun.clim.morta1,disp.fun=disp.unif.fun,param.DISP=2,param.K=1,
+                        param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,dist.vec,array.i,array.j){
 
 res.list.temp <- list()
 res.list.temp[[1]] <- Alandscape.init
@@ -195,6 +249,34 @@ gc()
 return(res.list.temp)
 }
 
+
+#########
+## function run simulation
+fun.run.sim.Succ <- function(A,B,Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
+disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ,dist.vec,array.i,array.j){
+
+res.listE.temp <- list()
+res.listL.temp <- list()
+res.list.Succ.temp <- list()
+res.listE.temp[[1]] <- Alandscape.LIST.init[[1]]
+res.listL.temp[[1]] <- Alandscape.LIST.init[[2]]
+res.list.Succ.temp[[1]] <- Alandscape.LIST.init[[3]]
+Alandscape.LIST <-  Alandscape.LIST.init
+
+for(j in 1:A){
+  for (i in 1:B){
+Alandscape.LIST <-  fun.update.landscape.Succ(Alandscape.LIST,
+fun.clim.morta=fun.clim.morta,disp.fun=disp.fun,param.DISP,param.K,param.P,N,
+  param.climate.stress,
+  param.dist,param.Succ,dist.vec,array.i,array.j)
+  }  
+res.listE.temp[[j+1]] <- Alandscape.LIST[[1]]
+res.listL.temp[[j+1]] <- Alandscape.LIST[[2]]
+res.list.Succ.temp[[j+1]] <- Alandscape.LIST[[3]]
+gc()
+}
+return(list(res.listE.temp,res.listL.temp,res.list.Succ.temp))
+}
 
 
 ###################################################
