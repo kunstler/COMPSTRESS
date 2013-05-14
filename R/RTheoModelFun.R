@@ -6,7 +6,7 @@
 
 ### function to deal with reflexion and semi-torus landscape
 ## semi torus : if i = 1 then i-k = imaxk+1 / if i = imax then i+k = k
-## reflexion : if i= 1 then i-k =i+k and if i=Nlandscape *imaxi+k = i-k
+## reflexionprint : if i= 1 then i-k =i+k and if i=Nlandscape *imaxi+k = i-k
 
 # torus function return the N neasrest cells with a torus for one dimension i
 function.torus <-  function(i,N,imax){
@@ -89,6 +89,7 @@ ccc.L.vec <-sapply(1:8,FUN=function.return.cell,i=array.i[i,j,],
 
 disp.seed <-  rpois(rep(1,length=length(ccc.E.vec)),lambda=
                     disp.fun(dist.vec,ccc.vec=ccc.E.vec,param.DISP,N))
+
 return(list(as.vector(na.exclude(c(Alandscape.LIST[[1]][i,j],rep(ccc.E.vec,disp.seed)))),
         as.vector(na.exclude(c(Alandscape.LIST[[2]][i,j],rep(ccc.L.vec,disp.seed))))))
 }
@@ -145,10 +146,10 @@ AlandscapeE <-  Alandscape.LIST[[1]]
 AlandscapeL <-  Alandscape.LIST[[2]]
 Alandscape.Succ <-  Alandscape.LIST[[3]]
 
-if(!is.na(Alandscape.Succ[i,j])){
+
     if(Alandscape.Succ[i,j]=="E"){
            vec.c.seed <- function.disperse.Succ.to.ij(i,j,disp.fun,param.DISP,N,Alandscape.LIST,dist.vec,array.i,array.j)
-     if(length(vec.c.seed[[1]])>0) {winner <- (sample(1:length(vec.c.seed[[1]]),size=1,prob=
+     if(length(vec.c.seed[[1]])>0) { winner <- (sample(1:length(vec.c.seed[[1]]),size=1,prob=
                   function.compet(vec.t=vec.c.seed[[1]],K=param.K)))
                       vec.res[1] <- vec.c.seed[[1]][winner]
                       vec.res[2] <- vec.c.seed[[2]][winner]  } else { vec.res[1] <-(Alandscape.LIST[[1]][i,j])
@@ -164,18 +165,20 @@ if(!is.na(Alandscape.Succ[i,j])){
                                                                     vec.res[2] <-(Alandscape.LIST[[2]][i,j])}
      }
 
-   }else{
+   if(Alandscape.Succ[i,j]=="NO"){
           vec.c.seed <- function.disperse.Succ.to.ij(i,j,disp.fun,param.DISP,N,Alandscape.LIST,dist.vec,array.i,array.j)
      if(length(vec.c.seed[[1]])>0) {winner <- (sample(1:length(vec.c.seed[[1]]),size=1,prob=
                   function.compet(vec.t=vec.c.seed[[1]],K=param.K)))
                       vec.res[1] <- vec.c.seed[[1]][winner]
-                      vec.res[2] <- vec.c.seed[[2]][winner]  } else { vec.res[1] <-NA
-                                                                    vec.res[2] <-NA}
+                      vec.res[2] <- vec.c.seed[[2]][winner]
+           } else { vec.res[1] <-NA
+                    vec.res[2] <-NA}
  
-
 }
-  return(vec.res)      }   
+
+return(vec.res)      }   
   
+
 
 
 
@@ -186,9 +189,10 @@ if(!is.na(Alandscape.Succ[i,j])){
 ### function to kill a cell with disturbance and climate stress
 function.kill <-  function(i,j,Alandscape,param.climate.stress,param.dist,fun.clim.morta){
 ## global dist
+
 if (is.na(Alandscape[i,j])){return(NA)}else{  if(runif(1)<param.dist) {return(NA)}else{
   ## climate death
-    if(runif(1)>fun.clim.morta(Alandscape[i,j],j,param.climate.stress)){return(NA)}else{return(Alandscape[i,j])}
+  if(runif(1)>fun.clim.morta(Alandscape[i,j],j,param.climate.stress)){return(NA)}else{return(Alandscape[i,j])}
   }}
 }
 
@@ -209,7 +213,7 @@ Succ.temp <- Alandscape.Succ[i,j]
 if(Alandscape.Succ[i,j]=="E"){
     if(runif(1)<param.Succ){Succ.temp <- "L"}
   }
-    return(Succ.temp)
+return(Succ.temp)
 }
 
 ############################
@@ -227,7 +231,7 @@ for (i in 1:nrow(Alandscape)){
 return(Alandscape)
 }
 
-
+####
 fun.update.landscape.Succ<- function(Alandscape.LIST,fun.clim.morta,disp.fun,param.DISP,
 param.K,param.P,N,param.climate.stress,param.dist,param.Succ,dist.vec,array.i,array.j){
 for (i in 1:nrow(Alandscape.LIST[[1]])){ 
@@ -235,8 +239,8 @@ for (i in 1:nrow(Alandscape.LIST[[1]])){
        vec.EL <- function.colonize.cell.Succ(i,j,disp.fun,param.DISP,param.K,param.P,N,Alandscape.LIST=Alandscape.LIST,dist.vec,array.i,array.j)  
        Alandscape.LIST[[1]][i,j] <- vec.EL[1]
        Alandscape.LIST[[2]][i,j] <- vec.EL[2]
-  
-       Alandscape.LIST[[3]][i,j] <- fun.Succ(i,j,Alandscape.Succ,param.Succ)
+ 
+       Alandscape.LIST[[3]][i,j] <- fun.Succ(i,j,Alandscape.Succ=Alandscape.LIST[[3]],param.Succ)
 
        morta <- function.kill(i,j,Alandscape=Alandscape.LIST[[1]]+Alandscape.LIST[[2]],param.climate.stress,param.dist,fun.clim.morta)
        if(is.na(morta)){
@@ -362,6 +366,37 @@ text(27,0.9,round( sum(!is.na(res.list[[length(res.list)]]))/prod(
   dim(res.list[[length(res.list)]])),4))
 
 }
+
+
+## PLOT SUCC
+#### plot quantile
+fun.plot.grad.quant.cluster.Succ <-  function(res.name,imax=300,path){
+res.list <- readRDS(file=paste("./",path,"/",res.name,sep=""))
+red.col.vec <-  (colorRampPalette(c("grey", "red"))( length(res.list[[1]]) ) )
+blue.col.vec <-  (colorRampPalette(c("grey", "blue"))( length(res.list[[1]]) ) )
+
+quant.tempE <- fun.gradient.quantile.levels(res.list[[1]],t=1,imax=imax)
+quant.tempL <- fun.gradient.quantile.levels(res.list[[2]],t=1,imax=imax)
+plot(quant.tempE[1,],type="l",ylim=c(0,1),col=red.col.vec[1],
+     ylab="Competitive ability traits",xlab="climate gradient")
+lines(quant.tempE[2,],col=red.col.vec[1])
+lines(quant.tempL[1,],col=blue.col.vec[1])
+lines(quant.tempL[2,],col=blue.col.vec[1])
+
+
+for (i in 2:length(res.list[[1]])){
+quant.tempE <- fun.gradient.quantile.levels(res.list[[1]],t=i,imax=imax)
+quant.tempL <- fun.gradient.quantile.levels(res.list[[2]],t=i,imax=imax)
+lines(quant.tempE[1,],col=red.col.vec[i])
+lines(quant.tempE[2,],col=red.col.vec[i])
+lines(quant.tempL[1,],col=blue.col.vec[i])
+lines(quant.tempL[2,],col=blue.col.vec[i])
+
+}
+## add abundance for last step
+
+}
+
 
 ### plot image of landscape
 fun.image.landscape <-  function(res.name,path,t=length(res.list)){

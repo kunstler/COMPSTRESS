@@ -14,7 +14,7 @@ source(file="./R/RTheoModelFun.R")
 ## initialization NO Succ
 ## Landscapoe matrix
 Nlandscape <-  3 #dimension (in 2*NN) of the long side corressponding to the climatic stress gradient
-NN <- 100  ## size of landscape (classicaly 256)
+NN <- 20  ## size of landscape (classicaly 256)
 N <-  1 ## number of neigborhood cell 1 = moor neigborhood
 Alandscape <-  matrix(NA,nrow=NN,ncol=Nlandscape*NN)
 ## climate gradient
@@ -161,7 +161,7 @@ dev.off()
 ## initialization  Succ
 ## Landscapoe matrix
 Nlandscape <-  3 #dimension (in 2*NN) of the long side corressponding to the climatic stress gradient
-NN <- 100  ## size of landscape (classicaly 256)
+NN <- 20  ## size of landscape (classicaly 256)
 N <-  1 ## number of neigborhood cell 1 = moor neigborhood
 AlandscapeE <-  matrix(NA,nrow=NN,ncol=Nlandscape*NN)
 AlandscapeL <- AlandscapeE
@@ -188,6 +188,7 @@ vec.landE[init.temp] <- sapply(vec.land[init.temp],FUN=fun.sample.compet)
 vec.landL[init.temp] <-(vec.land[init.temp] -vec.landE[init.temp])/100
 vec.landE[init.temp] <- vec.landE[init.temp]/100
 
+plot(vec.landE[init.temp] ,vec.landE[init.temp] + vec.landL[init.temp]  )
 ## par(mfrow=c(2,2))
 ## x   <- cbind(vec.landE[init.temp] ,vec.landL[init.temp])
 ## data <- as.data.frame(x)
@@ -221,43 +222,71 @@ list.temp <- function.array.neigcells(NN,Nlandscape)
 array.i <- list.temp[[1]]
 array.j <- list.temp[[2]]
 rm(list.temp)
-array.i[100,20,]
+array.i[10,20,]
 
 
 
 
 ##################################
 ##################################
-#### RUN A SIMULATION SUCCESSION TES  FOR A B time step
+#### RUN A SIMULATION SUCCESSION TEST  FOR A B time step
 ## K 5 P 1
-res.list.Succ.k5.p1.Succ0.25 <- fun.run.sim.Succ(A=3,B=20,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
-disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.25,dist.vec,array.i,array.j)
+res.list.Succ.k5.p1.Succ0.25 <- fun.run.sim.Succ(A=20,B=2,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
+disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=1,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.8,dist.vec,array.i,array.j)
 
-  image(res.list.Succ.k5.p1[[1]][[3]] )
+par(mfrow=c(5,5),mar=c(0,0,0,0))
+for (i in c(0:20)) {image(res.list.Succ.k5.p1.Succ0.25[[1]][[i+1]] )
+                    print(mean(res.list.Succ.k5.p1.Succ0.25[[1]][[i+1]],na.rm=T))}
+x11()
+par(mfrow=c(5,5),mar=c(0,0,0,0))
+for (i in c(0:20)) {image(res.list.Succ.k5.p1.Succ0.25[[2]][[i+1]] )
+                    print(mean(res.list.Succ.k5.p1.Succ0.25[[2]][[i+1]],na.rm=T))}
 
+res.list.Succ.k5.p1.Succ0.25[[1]][[20]] 
+res.list.Succ.k5.p1.Succ0.25[[2]][[20]] 
 
+### NEED to rea
 ### NEED to read all outputs from cluster.
 
 ## read file in output cluster
-list.files(path="./output_cluster",pattern="p0.disp20.r")
+list.files(path="./output_cluster",pattern="Succ")
 
 ### create vector names of files to read from cluster for the plots
-names.p0.disp20.dist0.1 <- c( "res.list.k100.p0.disp20.rds" ,  "res.list.k5.p0.disp20.rds", "res.list.k1.p0.disp20.rds" ,"res.list.k.001.p0.disp20.rds" )
-names.p0.5.disp20.dist0.1 <- c( "res.list.k100.p0.5.disp20.rds" ,  "res.list.k5.p0.5.disp20.rds", "res.list.k1.p0.5.disp20.rds" ,"res.list.k.001.p0.5.disp20.rds" )
-names.p1.disp20.dist0.1 <- c( "res.list.k100.p1.disp20.rds" ,  "res.list.k5.p1.disp20.rds", "res.list.k1.p1.disp20.rds" ,"res.list.k.001.p1.disp20.rds" )
+names.p0.disp20.dist0.1 <- c( "res.list.k100.p0.disp20.rds" ,  "res.list.k5.p0.disp20.rds", "res.list.k1.p0.disp20.rds"
+                             ,"res.list.k.001.p0.disp20.rds" )
+names.p0.5.disp20.dist0.1 <- c( "res.list.k100.p0.5.disp20.rds" ,  "res.list.k5.p0.5.disp20.rds", "res.list.k1.p0.5.disp20.rds"
+                               ,"res.list.k.001.p0.5.disp20.rds" )
+names.p1.disp20.dist0.1 <- c( "res.list.k100.p1.disp20.rds" ,  "res.list.k5.p1.disp20.rds", "res.list.k1.p1.disp20.rds"
+                             ,"res.list.k.001.p1.disp20.rds" )
 
-names.p0.disp20.dist0.5 <- c( "res.list.k100.p0.disp20.dist0.5.rds" ,  "res.list.k5.p0.disp20.dist0.5.rds", "res.list.k1.p0.disp20.dist0.5.rds" ,"res.list.k.001.p0.disp20.dist0.5.rds" )
-names.p0.5.disp20.dist0.5 <- c( "res.list.k100.p0.5.disp20.dist0.5.rds" ,  "res.list.k5.p0.5.disp20.dist0.5.rds", "res.list.k1.p0.5.disp20.dist0.5.rds" ,"res.list.k.001.p0.5.disp20.dist0.5.rds" )
-names.p1.disp20.dist0.5 <- c( "res.list.k100.p1.disp20.dist0.5.rds" ,  "res.list.k5.p1.disp20.dist0.5.rds", "res.list.k1.p1.disp20.dist0.5.rds" ,"res.list.k.001.p1.disp20.dist0.5.rds" )
+names.p0.disp20.dist0.5 <- c( "res.list.k100.p0.disp20.dist0.5.rds" ,  "res.list.k5.p0.disp20.dist0.5.rds"
+                             , "res.list.k1.p0.disp20.dist0.5.rds" ,"res.list.k.001.p0.disp20.dist0.5.rds" )
+names.p0.5.disp20.dist0.5 <- c( "res.list.k100.p0.5.disp20.dist0.5.rds" ,  "res.list.k5.p0.5.disp20.dist0.5.rds"
+                               , "res.list.k1.p0.5.disp20.dist0.5.rds" ,"res.list.k.001.p0.5.disp20.dist0.5.rds" )
+names.p1.disp20.dist0.5 <- c( "res.list.k100.p1.disp20.dist0.5.rds" ,  "res.list.k5.p1.disp20.dist0.5.rds"
+                             , "res.list.k1.p1.disp20.dist0.5.rds" ,"res.list.k.001.p1.disp20.dist0.5.rds" )
 
 
-names.p0.disp2.dist0.1 <- c( "res.list.k100.p0.disp2.rds" ,  "res.list.k5.p0.disp2.rds", "res.list.k1.p0.disp2.rds" ,"res.list.k.001.p0.disp2.rds" )
-names.p0.5.disp2.dist0.1 <- c( "res.list.k100.p0.5.disp2.rds" ,  "res.list.k5.p0.5.disp2.rds", "res.list.k1.p0.5.disp2.rds" ,"res.list.k.001.p0.5.disp2.rds" )
-names.p1.disp2.dist0.1 <- c( "res.list.k100.p1.disp2.rds" ,  "res.list.k5.p1.disp2.rds", "res.list.k1.p1.disp2.rds" ,"res.list.k.001.p1.disp2.rds" )
+names.p0.disp2.dist0.1 <- c( "res.list.k100.p0.disp2.rds" ,  "res.list.k5.p0.disp2.rds", "res.list.k1.p0.disp2.rds"
+                            ,"res.list.k.001.p0.disp2.rds" )
+names.p0.5.disp2.dist0.1 <- c( "res.list.k100.p0.5.disp2.rds" ,  "res.list.k5.p0.5.disp2.rds", "res.list.k1.p0.5.disp2.rds"
+                              ,"res.list.k.001.p0.5.disp2.rds" )
+names.p1.disp2.dist0.1 <- c( "res.list.k100.p1.disp2.rds" ,  "res.list.k5.p1.disp2.rds", "res.list.k1.p1.disp2.rds"
+                            ,"res.list.k.001.p1.disp2.rds" )
 
-names.p0.disp.2.dist0.1 <- c( "res.list.k100.p0.disp.2.rds" ,  "res.list.k5.p0.disp.2.rds", "res.list.k1.p0.disp.2.rds" ,"res.list.k.001.p0.disp.2.rds" )
-names.p0.5.disp.2.dist0.1 <- c( "res.list.k100.p0.5.disp.2.rds" ,  "res.list.k5.p0.5.disp.2.rds", "res.list.k1.p0.5.disp.2.rds" ,"res.list.k.001.p0.5.disp.2.rds" )
-names.p1.disp.2.dist0.1 <- c( "res.list.k100.p1.disp.2.rds" ,  "res.list.k5.p1.disp.2.rds", "res.list.k1.p1.disp.2.rds" ,"res.list.k.001.p1.disp.2.rds" )
+names.p0.disp.2.dist0.1 <- c( "res.list.k100.p0.disp.2.rds" ,  "res.list.k5.p0.disp.2.rds", "res.list.k1.p0.disp.2.rds"
+                             ,"res.list.k.001.p0.disp.2.rds" )
+names.p0.5.disp.2.dist0.1 <- c( "res.list.k100.p0.5.disp.2.rds" ,  "res.list.k5.p0.5.disp.2.rds", "res.list.k1.p0.5.disp.2.rds"
+                               ,"res.list.k.001.p0.5.disp.2.rds" )
+names.p1.disp.2.dist0.1 <- c( "res.list.k100.p1.disp.2.rds" ,  "res.list.k5.p1.disp.2.rds", "res.list.k1.p1.disp.2.rds"
+                             ,"res.list.k.001.p1.disp.2.rds" )
+
+
+#### SUCCESSION
+names.p0.disp2.dist0.1.Succ0.25 <- c(  "res.list.Succ.k100.p0.Succ0.25.rds" ,  "res.list.Succ.k5.p0.Succ0.25.rds"
+                                     , "res.list.Succ.k1.p0.Succ0.25.rds" , "res.list.k.001.p0.disp.25.rds")
+ames.p0.disp2.dist0.1.Succ0.5 <- c(  "res.list.Succ.k100.p0.Succ0.5.rds" ,  "res.list.Succ.k5.p0.Succ0.5.rds"
+                                     , "res.list.Succ.k1.p0.Succ0.5.rds" , "res.list.k.001.p0.disp.5.rds")
 
 
 #################
@@ -325,6 +354,30 @@ mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
 mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
 dev.off()
 
+###########################
+##### SUCCESSION
+names.p0.disp2.dist0.1.Succ0.25 <- c(  "res.list.Succ.k100.p0.Succ0.25.rds" ,  "res.list.Succ.k5.p0.Succ0.25.rds"
+                                     , "res.list.Succ.k1.p0.Succ0.25.rds" , "res.list.Succ.k.001.p0.Succ0.25.rds")
+names.p0.disp2.dist0.1.Succ0.5 <- c(  "res.list.Succ.k100.p0.Succ0.5.rds" ,  "res.list.Succ.k5.p0.Succ0.5.rds"
+                                     , "res.list.Succ.k1.p0.Succ0.5.rds" , "res.list.Succ.k.001.p0.Succ0.5.rds")
+
+pdf("./figs/Firstsimul.F2,SUCC.pdf")
+par(mfcol=c(4,2),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp2.dist0.1.Succ0.25,fun.plot.grad.quant.cluster.Succ,
+       path="output_cluster")
+lapply(names.p0.disp2.dist0.1.Succ0.5,fun.plot.grad.quant.cluster.Succ,
+       path="output_cluster")
+mtext("Succ=0.25",3,adj=0.2, cex=0.9, outer=TRUE)
+mtext("Succ=0.5",3,adj=0.8, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
+dev.off()
+
+
+
 
 ################### image
 
@@ -354,6 +407,23 @@ lapply(names.p0.disp2.dist0.1 ,fun.image.landscape,
 lapply(names.p0.5.disp2.dist0.1 ,fun.image.landscape,
        path="output_cluster")
 lapply(names.p1.disp2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
+mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
+mtext("Premption (P=1)",3,adj=0.9, cex=0.9, outer=TRUE)
+mtext("K=100", 2   , adj=0.92,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=5",  2   , adj=0.65,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=1", 2  , adj=0.37,padj=-1.5, cex=1.2, outer=TRUE)
+mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
+dev.off()
+
+pdf("./figs/Firstsimul.image.F.2.pdf")
+par(mfcol=c(4,3),mar=c(1,1,1,1),oma=c(3,4,2,1))
+lapply(names.p0.disp.2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p0.5.disp.2.dist0.1 ,fun.image.landscape,
+       path="output_cluster")
+lapply(names.p1.disp.2.dist0.1 ,fun.image.landscape,
        path="output_cluster")
 mtext("No Premption (P=0)",3,adj=0.1, cex=0.9, outer=TRUE)
 mtext("Half  Premption (P=0.5)",3,adj=0.5, cex=0.9, outer=TRUE)
