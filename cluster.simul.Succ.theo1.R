@@ -86,6 +86,8 @@ rm(list.temp)
 res.list.Succ.k100.p0.Succ0.25 <- fun.run.sim.Succ(A=20,B=50,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
 disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.25,dist.vec,array.i,array.j)
 
+saveRDS(res.list.Succ.k100.p0.Succ0.25,file="./output/res.list.Succ.k100.p0.Succ0.25.rds")
+
 ##################################
 ##################################
 #### RUN A SIMULATION SUCCESSION TES  FOR A B time step
@@ -93,12 +95,16 @@ disp.fun=disp.unif.fun,param.DISP=2,param.K=100,param.P=0,N=1,param.climate.stre
 res.list.Succ.k5.p0.Succ0.25 <- fun.run.sim.Succ(A=20,B=50,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
 disp.fun=disp.unif.fun,param.DISP=2,param.K=5,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.25,dist.vec,array.i,array.j)
 
+saveRDS(res.list.Succ.k5.p0.Succ0.25,file="./output/res.list.Succ.k5.p0.Succ0.25.rds")
+
 ##################################
 ##################################
 #### RUN A SIMULATION SUCCESSION TES  FOR A B time step
 ## K 1 P 1 Succ 0.25
 res.list.Succ.k1.p0.Succ0.25 <- fun.run.sim.Succ(A=20,B=50,Alandscape.LIST.init=Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
 disp.fun=disp.unif.fun,param.DISP=2,param.K=1,param.P=0,N=1,param.climate.stress=NA,param.dist=0.1,param.Succ=0.25,dist.vec,array.i,array.j)
+
+saveRDS(res.list.Succ.k1.p0.Succ0.25,file="./output/res.list.Succ.k1.p0.Succ0.25.rds")
 
 ##################################
 ##################################
@@ -109,8 +115,5 @@ disp.fun=disp.unif.fun,param.DISP=2,param.K=0.001,param.P=0,N=1,param.climate.st
 
 
 
-saveRDS(res.list.Succ.k100.p0.Succ0.25,file="./output/res.list.Succ.k100.p0.Succ0.25.rds")
-saveRDS(res.list.Succ.k5.p0.Succ0.25,file="./output/res.list.Succ.k5.p0.Succ0.25.rds")
-saveRDS(res.list.Succ.k1.p0.Succ0.25,file="./output/res.list.Succ.k1.p0.Succ0.25.rds")
 saveRDS(res.list.Succ.k.001.p0.Succ0.25,file="./output/res.list.Succ.k.001.p0.Succ0.25.rds")
         
