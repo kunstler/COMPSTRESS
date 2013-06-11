@@ -8,6 +8,19 @@
 ## source functions
 source(file="./R/RTheoModelFun.R") 
 
+########################
+########################
+## BAsed on case et al. 2005 plot abundance of superior and inferor competitor along the gradient.
+grad.clim <-  seq(from=0,to=1,length=100)
+
+ cs <-  1
+ci <-  0.
+d <- 0.1
+f <-  1
+plot(grad.clim,fun.abund.sup(grad.clim,cs,d,f) ,type="l",ylim=c(0,1))
+lines(grad.clim,fun.abund.inf(grad.clim,ci,cs ,d ,f),col="red")
+lines(grad.clim,fun.abund.inf(grad.clim,ci,cs ,d,f)+fun.abund.sup(grad.clim,cs,d,f),
+      col="grey",lty=3)
 
 
 ##################################
@@ -803,8 +816,6 @@ mtext("K=0.001", 2   , adj=0.1,padj=-1.5, cex=1.2, outer=TRUE)
 mtext("Climatic gradient", 1   , adj=0.5,padj=1.3, cex=1.4, outer=TRUE)
 dev.off()
 
-res.name <- names.p0.disp2.dist0.1.Succ0.85[1]
-res.list[[1]][[21]]
 
 #### plot abundance
 gray.col.vec <- rev(gray.colors(n=length(res.list)))

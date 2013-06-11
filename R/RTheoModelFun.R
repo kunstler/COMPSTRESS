@@ -1,3 +1,16 @@
+#####################################
+#####################################
+#### FUNCTIONS TO PREDICT ABUNDANCE FOR A TWO SPECIES
+#### CS trade off along teh gradient based on Case et al. 2005
+
+fun.abund.sup <- function(grad.clim,cs,d,f) {apply(cbind(rep(0,length(grad.clim)),1-
+  apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))),MARGIN=1,FUN=min)/f),MARGIN=1,FUN=max)}
+fun.abund.inf <- function(grad.clim,ci,cs,d,f) {apply(cbind(rep(0,length(grad.clim)),2/
+ f*apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))), MARGIN=1,FUN=min) -
+apply(cbind(ci*grad.clim+d,rep(1,length(grad.clim))),MARGIN=1,FUN=min)/f-1),MARGIN=1,FUN=max)}
+
+
+
 
 ####################################################################
 ####################################################################
