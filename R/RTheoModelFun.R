@@ -3,11 +3,19 @@
 #### FUNCTIONS TO PREDICT ABUNDANCE FOR A TWO SPECIES
 #### CS trade off along teh gradient based on Case et al. 2005
 
-fun.abund.sup <- function(grad.clim,cs,d,f) {apply(cbind(rep(0,length(grad.clim)),1-
-  apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))),MARGIN=1,FUN=min)/f),MARGIN=1,FUN=max)}
-fun.abund.inf <- function(grad.clim,ci,cs,d,f) {apply(cbind(rep(0,length(grad.clim)),2/
- f*apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))), MARGIN=1,FUN=min) -
-apply(cbind(ci*grad.clim+d,rep(1,length(grad.clim))),MARGIN=1,FUN=min)/f-1),MARGIN=1,FUN=max)}
+fun.abund.sup <- function(grad.clim,cs,d,f) {
+    apply(cbind(rep(0,length(grad.clim)),
+                1-apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))),
+                        MARGIN=1,FUN=min)/f),
+          MARGIN=1,FUN=max)
+}
+fun.abund.inf <- function(grad.clim,ci,cs,d,f) {
+    apply(cbind(rep(0,length(grad.clim)),
+                2/f*apply(cbind(cs*grad.clim+d,rep(1,length(grad.clim))),
+                          MARGIN=1,FUN=min) -
+                apply(cbind(ci*grad.clim+d,rep(1,length(grad.clim))),
+                      MARGIN=1,FUN=min)/f-1),MARGIN=1,FUN=max)
+}
 
 
 
@@ -23,7 +31,7 @@ require(raster)
 ## reflexionprint : if i= 1 then i-k =i+k and if i=Nlandscape *imaxi+k = i-k
 
 # torus function return the N neasrest cells with a torus for one dimension i
-function.torus <-  function(i,N,imax){
+function.torus <-  function(i, imax, N = 1){
    if((i+N)>imax){it <- c(i-(N:1),i+(1:N))
       it[it>imax] <-  1:(i+N-imax)
       return(it)}
@@ -42,7 +50,7 @@ function.torus <-  function(i,N,imax){
 ## function.torus(i=5,N=1,imax=256)
 
 ## return the N nearest cells with a reflexion
-function.reflex <-  function(i,N,imax){
+function.reflex <-  function(i, imax, N = 1){
    if((i+N)>imax){it <- c(i-(N:1),i+(1:N))
        it[it>imax] <-  (imax):(2*imax-(i+N-1))
        return(it)} else{if((i-N)<1){
@@ -56,10 +64,32 @@ function.reflex <-  function(i,N,imax){
 ## function.reflex(i=250,N=1,imax=256)
 
 ## FUNCTION CREATING AN ARRAY OF NEIGHBORHOOD CELLS
+function.mat.neigcells <-  function(NN,Nlandscape, N = 1){
+mat.index.neigh.cells <- matrix(NA,NN*NN*Nlandscape,8)
+mat.cell.num <- matrix(1:(NN*NN*Nlandscape), NN, NN*Nlandscape)
+
+for (i in 1:NN)
+{
+ for (j in 1:(NN*Nlandscape))
+   {
+n.i <-  function.torus(i,imax=NN)
+n.j <- function.reflex(i=j,imax=NN*Nlandscape)
+vec.i<-  c(rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N),
+           n.i,
+           rep(c(n.i[1:N],i,n.i[(N+1):2*N]),N))
+vec.j<- c(rep(n.j[1:N],each=2*N+1),
+          rep(j,each=2*N),
+          rep(n.j[(N+1):(2*N)],each=2*N+1))
+mat.index.neigh.cells[mat.cell.num[i,j], ] <- mat.cell.num[cbind(vec.i, vec.j)]
+   }
+}
+return(mat.index.neigh.cells)
+}
+
 
 function.array.neigcells <-  function(NN,Nlandscape){
-array.i <- array(NA,dim=c(NN,NN*Nlandscape,8))
-array.j <- array(NA,dim=c(NN,NN*Nlandscape,8))
+array.i <- matrix(NA,dim=c(NN,NN*Nlandscape,8))
+array.j <- matrix(NA,dim=c(NN,NN*Nlandscape,8))
 
 for (i in 1:NN)
 {
@@ -114,24 +144,13 @@ diag(mt) <-  1
 return(apply(mt,MARGIN=1,FUN=prod)/sum(apply(mt,MARGIN=1,FUN=prod)))
 }
 
-
-############################################################
-## function to update a given cell with new colonizer
-### THIS NEZ FUNCTION IS CHANGED TO HAVE TO STATE OF THE CELL EITHER EARLY SUCC OR LATE SUCC
-function.colonize.cell.Succ <-  function(i,j,param.K,
-                                         Alandscape.LIST,array.i,array.j){
+colonize.E <- function(vec.c.seed, param.K, Alandscape.LIST){
 vec.res <- c(NA,NA)
-AlandscapeE <-  Alandscape.LIST[[1]]
-AlandscapeL <-  Alandscape.LIST[[2]]
-Alandscape.Succ <-  Alandscape.LIST[[3]]
-
-vec.c.seed <- function.disperse.Succ.to.ij(i, j, Alandscape.LIST, array.i, array.j)
-
-    if(Alandscape.Succ[i,j]=="E"){
       if(length(vec.c.seed[[1]])>0) {
           winner <- sample(1:length(vec.c.seed[[1]]),
                            size = 1,
-                           prob = function.compet(vec.t=vec.c.seed[[1]],K=param.K))
+                           prob = function.compet(vec.t=vec.c.seed[[1]],
+                                                  K=param.K))
           vec.res[1] <- vec.c.seed[[1]][winner]
           vec.res[2] <- vec.c.seed[[2]][winner]
       }
@@ -139,44 +158,58 @@ vec.c.seed <- function.disperse.Succ.to.ij(i, j, Alandscape.LIST, array.i, array
          vec.res[1] <-(Alandscape.LIST[[1]][i,j])
          vec.res[2] <-(Alandscape.LIST[[2]][i,j])
       }
-     }
+return(vec.res)
+}
 
-  if(Alandscape.Succ[i,j]=="L"){
+colonize.L <- function(vec.c.seed, param.K, Alandscape.LIST){
+vec.res <- c(NA,NA)
      if(length(vec.c.seed[[2]])>0) {
          winner <- sample(1:length(vec.c.seed[[2]]),
                           size = 1,
-                          prob = function.compet(vec.t=vec.c.seed[[2]],K=param.K))
+                          prob = function.compet(vec.t = vec.c.seed[[2]],
+                                                 K = param.K))
                       vec.res[1] <- vec.c.seed[[1]][winner]
                       vec.res[2] <- vec.c.seed[[2]][winner]
      } else {
          vec.res[1] <-(Alandscape.LIST[[1]][i,j])
          vec.res[2] <-(Alandscape.LIST[[2]][i,j])
      }
-     }
+return(vec.res)
+}
 
-   if(Alandscape.Succ[i,j]=="NO"){
+colonize.NO <- function(vec.c.seed, param.K, Alandscape.LIST){
+vec.res <- c(NA,NA)
      if(length(vec.c.seed[[1]])>0) {
          winner <- sample(1:length(vec.c.seed[[1]]),
                           size = 1,
-                          prob = function.compet(vec.t=vec.c.seed[[1]],K=param.K))
+                          prob = function.compet(vec.t=vec.c.seed[[1]],
+                                                 K=param.K))
          vec.res[1] <- vec.c.seed[[1]][winner]
          vec.res[2] <- vec.c.seed[[2]][winner]
      } else {
          vec.res[1] <-NA
          vec.res[2] <-NA
       }
-
-}
-
 return(vec.res)
 }
 
 
+############################################################
+## function to update a given cell with new colonizer
+### THIS NEZ FUNCTION IS CHANGED TO HAVE TO STATE OF THE CELL EITHER EARLY SUCC OR LATE SUCC
+function.colonize.cell.Succ <-  function(i,j,param.K,
+                                         Alandscape.LIST,array.i,array.j){
+vec.c.seed <- function.disperse.Succ.to.ij(i, j,
+                                           Alandscape.LIST,
+                                           array.i, array.j)
+vec.res <- switch(Alandscape.Succ[i,j],
+                  E = colonize.E(vec.c.seed, param.K, Alandscape.LIST),
+                  L = colonize.L(vec.c.seed, param.K, Alandscape.LIST),
+                  NO = colonize.NO(vec.c.seed, param.K, Alandscape.LIST))
+return(vec.res)
+}
 
 
-
-
-## function.colonize.cell(i=3,j=2,disp.fun=disp.unif.fun,param.DISP=9,param.K=10,param.P=0.5,N=1,Alandscape,dist.vec,array.i,array.j)
 
 #######################################################################
 ### function to kill a cell with disturbance and climate stress
@@ -230,7 +263,8 @@ return(Succ.temp)
 
 ####
 fun.update.landscape.Succ<- function(Alandscape.LIST,fun.clim.morta,
-                                     param.K,param.climate.stress,param.dist,param.Succ,array.i,array.j){
+                                     param.K,param.climate.stress,
+                                     param.dist,param.Succ,array.i,array.j){
 for (i in 1:nrow(Alandscape.LIST[[1]])){
    for (j in 1:ncol(Alandscape.LIST[[1]])){
        vec.EL <- function.colonize.cell.Succ(i,j,param.K,
@@ -241,7 +275,12 @@ for (i in 1:nrow(Alandscape.LIST[[1]])){
 
        Alandscape.LIST[[3]][i,j] <- fun.Succ(i,j,Alandscape.LIST,param.Succ)
 
-       morta <- function.kill(i,j,Alandscape=Alandscape.LIST[[1]]+Alandscape.LIST[[2]],param.climate.stress,param.dist,fun.clim.morta)
+       morta <- function.kill(i,j,
+                              Alandscape= Alandscape.LIST[[1]]+
+                                          Alandscape.LIST[[2]],
+                              param.climate.stress,
+                              param.dist,
+                              fun.clim.morta)
        if(is.na(morta)){
         Alandscape.LIST[[1]][i,j] <- NA
         Alandscape.LIST[[2]][i,j] <- NA
@@ -255,7 +294,8 @@ return(Alandscape.LIST)
 
 #########
 ## function run simulation
-fun.run.sim.Succ <- function(A,B,Alandscape.LIST.init,fun.clim.morta=fun.clim.morta1,
+fun.run.sim.Succ <- function(A,B,Alandscape.LIST.init,
+                             fun.clim.morta=fun.clim.morta1,
                              param.K=1,param.climate.stress=NA,param.dist=0.1,
                              param.Succ,array.i,array.j){
 
@@ -286,8 +326,11 @@ return(list(res.listE.temp,res.listL.temp,res.list.Succ.temp))
 ###################################################
 ### FUNCTION TO ANALYSE OUTPUTS
 
-function.table.levels <-  function(v) table(factor(v,levels=
-                                          (0:100)/100))
+function.table.levels <-  function(v){
+   vec_sp <- factor(v, levels = (0:100)/100)
+    table(vec_sp)/sum(table(vec_sp))
+}
+
 
 fun.gradient.table.levels <- function(res.list,t,imax){
 sp.abun.grad <- matrix(NA,nrow=101,ncol=imax/10)
@@ -404,11 +447,16 @@ image(x=1:nrow(t(res.list[[t]])),y=1:ncol(t(res.list[[t]])),z=t(res.list[[t]])
 }
 
 ### plot image of landscape Succ
-fun.image.landscape.Succ <-  function(res.name,path,t=21){
-res.list <- readRDS(file=paste("./",path,"/",res.name,sep=""))
-rast.temp <- stack(raster(res.list[[1]][[t]] ,xmn=1,xmx=ncol(res.list[[1]][[t]]),ymn=1,ymx=nrow(res.list[[1]][[t]])),
-raster(res.list[[2]][[t]] ,xmn=1,xmx=ncol(res.list[[1]][[t]]),ymn=1,ymx=nrow(res.list[[1]][[t]])),
-raster (1-(res.list[[1]][[t]] + res.list[[2]][[t]]) ,xmn=1,xmx=ncol(res.list[[1]][[t]]),ymn=1,ymx=nrow(res.list[[1]][[t]])))
+fun.image.landscape.Succ <-  function(res.list,t=21){
+rast.temp <- stack(raster(res.list[[1]][[t]] ,
+                          xmn=1, xmx=ncol(res.list[[1]][[t]]),
+                          ymn=1, ymx=nrow(res.list[[1]][[t]])),
+                   raster(res.list[[2]][[t]] ,
+                          xmn=1, xmx=ncol(res.list[[1]][[t]]),
+                          ymn=1,ymx=nrow(res.list[[1]][[t]])),
+                   raster (1-(res.list[[1]][[t]] + res.list[[2]][[t]]) ,
+                           xmn=1,xmx=ncol(res.list[[1]][[t]]),
+                           ymn=1,ymx=nrow(res.list[[1]][[t]])))
 plotRGB(rast.temp,scale=1,axes=T ,asp=1)
  }
 

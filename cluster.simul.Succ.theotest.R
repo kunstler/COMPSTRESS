@@ -24,7 +24,7 @@ AlandscapeL <- AlandscapeE
 Alandscape.Succ <- matrix("NO",nrow=NN,ncol=Nlandscape*NN)
 
 ## climate gradient
-climate.grad <-  seq(from=0.5,to=0.5,length=Nlandscape*NN)
+climate.grad <-  seq(from=0,to=0,length=Nlandscape*NN)
 
 ## init landscape with random draw of competition traits
 init.temp <- sample(1:(NN*NN*Nlandscape),size=round(NN*NN*Nlandscape*0.5))
@@ -89,22 +89,59 @@ Alandscape.LIST.init <-  list(AlandscapeE,AlandscapeL,Alandscape.Succ)
 
 list.temp <- function.array.neigcells(NN,Nlandscape)
 
+image(matrix(1:625 %in% mat.temp[100,],NN,NN*Nlandscape))
+mat.temp <- function.mat.neigcells(NN,Nlandscape)
+vec.e <- sample((0:100)/100, size = NN*NN*Nlandscape,replace = TRUE)
+neigh.val <- cbind(vec.e,
+                   matrix(vec.e[as.vector(mat.temp)], NN*NN*Nlandscape, 8))
+mat.prob <- t(apply(neigh.val, MARGIN = 1, function.compet, K = 5))
+
+sample.mat <-  function(x,y){
+    sample(x, size = 1, prob = y)
+}
+
+sampled.cell <- mapply(sample.mat, split(neigh.val, row(neigh.val)),
+                                   split(mat.prob, row(mat.prob)))
+
 array.i <- list.temp[[1]]
 array.j <- list.temp[[2]]
 rm(list.temp)
 
-
+matrix(1:prod(dim(Alandscape)),
 ##################################
 ##################################
 #### RUN A SIMULATION SUCCESSION TES  FOR A B time step
 ## K 100 P 1 Succ 0.25
-res.test <- fun.run.sim.Succ(A=10,B=2,
-                             Alandscape.LIST.init=Alandscape.LIST.init,
-                             fun.clim.morta=fun.clim.morta1,
-                             param.K=5,
-                             param.climate.stress=NA,
-                             param.dist=0.5,
-                             param.Succ=0.25,
-                             array.i = array.i,
-                             array.j = array.j)
 
+Rprof("/tmp/succ.prof")
+res.test <- fun.run.sim.Succ(A=1,B=200,
+                        Alandscape.LIST.init=Alandscape.LIST.init,
+                        fun.clim.morta=fun.clim.morta1,
+                        param.K=5,
+                        param.climate.stress=NA,
+                        param.dist=0.1,
+                        param.Succ=0.25,
+                        array.i = array.i,
+                        array.j = array.j)
+Rprof(NULL)
+head(summaryRprof("/tmp/succ.prof")$by.self, 10)
+
+fun.coex <- function(param.S){
+res <- fun.run.sim.Succ(A=1,B=800,
+                        Alandscape.LIST.init=Alandscape.LIST.init,
+                        fun.clim.morta=fun.clim.morta1,
+                        param.K=5,
+                        param.climate.stress=NA,
+                        param.dist=0.1,
+                        param.Succ=param.S,
+                        array.i = array.i,
+                        array.j = array.j)
+return(res[[1]][[2]])
+}
+
+res_list <- lapply(seq(0.1, 0.5, by = 0.05), fun.coex)
+image(sapply(res_list,function.table.levels), col = rev(heat.colors(50)))
+
+fun.image.landscape.Succ(res.test, 11)
+
+image(sapply(res.test[[1]],function.table.levels), col = rev(heat.colors(50)))
