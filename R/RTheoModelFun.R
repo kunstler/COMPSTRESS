@@ -214,8 +214,8 @@ return(res.list.temp)
 }
 
 
-generate.rand.sp <- function(nsp, Nval = 10000){
-   if(nsp > 5000) stop("error nsp must be smaller than 5000")
+generate.rand.sp <- function(nsp, Nval = 1000){
+   if(nsp > 200) stop("error nsp must be smaller than 200")
    E <- matrix(rep(0:Nval, Nval + 1), Nval +1, Nval+1)
    L <- matrix(rep(0:Nval, Nval + 1), Nval + 1, Nval +1, byrow= TRUE)
    S <- (E+L)
@@ -232,8 +232,9 @@ generate.rand.sp <- function(nsp, Nval = 10000){
    df <- na.omit(data.frame(E = as.vector(E.b)/Nval,
                             L = as.vector(L.b)/Nval,
                             S = as.vector(S.b)/Nval))
-  df.sp <- df[sample(1:dim(df)[1], nsp+4), ]
+  df.sp <- df[sample(1:dim(df)[1], nsp+50), ]
   df.sp <- df.sp[!duplicated(df.sp$E) & !duplicated(df.sp$L), ]
+if(nrow(df.sp) > nsp) df.sp <- df.sp[sample(1:nrow(df.sp), nsp), ]
    return(df.sp)
 }
 
