@@ -405,3 +405,4 @@ fun.reads.rds.seq <- function(filename,path) {
   assign(object.name, readRDS(paste("./",path,"/",filename,sep=""))
          ,.GlobalEnv)
 }
+
