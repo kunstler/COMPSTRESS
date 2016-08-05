@@ -120,3 +120,58 @@ print("done 3")
 
 }
 
+## test convergence
+
+eval_converg<- function(list_int, Niter, Nrun, p_d, p_s, K){
+
+  list_res <- vector('list', Niter+1)
+  list_res[[1]] <- list_init
+  print(1)
+  list_res[[2]] <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
+                       list_init$c_e, list_init$c_l, list_init$c_s,
+                       list_init$ss,
+                       p_d, p_s, K , n = Nrun)
+  for (i in 2:Niter){
+     print(i)
+  ##    browser()
+  list_res[[i + 1]] <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
+                       list_init$c_e, list_init$c_l, list_init$c_s,
+                       list_init$ss,
+                       p_d, p_s, K , n = i*Nrun)
+     ## list_res[[i+1]] <- UpdateIterR(list_res[[i]]$sp, list_res[[i]]$suc,
+     ##                      list_init$c_e, list_init$c_l, list_init$c_s,
+     ##                      list_init$ss,
+     ##                      0.1, 0.2, K = 100, n = 5)
+  }
+  return(list_res)
+}
+
+
+## coexistence
+
+eval_coex<- function(p_d, p_s, K, list_int, Nrun){
+res <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
+                       list_init$c_e, list_init$c_l, list_init$c_s,
+                       list_init$ss,
+                       p_d, p_s, K , n = Nrun)
+return(res[[1]])
+}
+
+
+## function to process output
+
+
+table_level <- function(x, nsp){
+  v <- rep(0, nsp+1)
+  names(v) <- 0:nsp
+  r <- table(x)
+  v[names(r)] <-  r
+  return(v)
+}
+
+table_level_row <- function(mm, nsp){
+
+t(apply(mm, MARGIN = 1, table_level, nsp))
+}
+
+
