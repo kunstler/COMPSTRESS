@@ -85,14 +85,20 @@ return_mat_fill_c_raster<- function(m, cc){
 }
 
 ### plot image of landscape Succ
-image_landscape <-  function(mat_sp, c_e, c_l, c_s){
-    rast_e <-  return_mat_fill_c_raster(mat_sp, c_e)
-    rast_l <-  return_mat_fill_c_raster(mat_sp, c_l)
-    rast_s <-  return_mat_fill_c_raster(mat_sp, c_s)
+
+image_landscape_e<-  function(list_res, c_e){
+    rast_e <-  return_mat_fill_c_raster(list_res[[1]], c_e)
+    image(rast_e,axes=FALSE ,asp=1)
+ }
+
+image_landscape <-  function(list_res, c_e, c_l, c_s){
+    rast_e <-  return_mat_fill_c_raster(list_res[[1]], c_e)
+    rast_l <-  return_mat_fill_c_raster(list_res[[1]], c_l)
+    rast_s <-  return_mat_fill_c_raster(list_res[[1]], c_s)
     rast.temp <- stack(rast_e,
                        rast_l,
                        rast_s)
-    plotRGB(rast.temp,scale=1,axes=T ,asp=1)
+    plotRGB(rast.temp,scale=1,axes=FALSE ,asp=1)
  }
 
 
@@ -122,7 +128,7 @@ print("done 3")
 
 ## test convergence
 
-eval_converg<- function(list_int, Niter, Nrun, p_d, p_s, K){
+eval_converg<- function(list_init, Niter, Nrun, p_d, p_s, K){
 
   list_res <- vector('list', Niter+1)
   list_res[[1]] <- list_init

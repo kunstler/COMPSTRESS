@@ -1,24 +1,11 @@
 #include <Rcpp.h>
 #include <iostream>
+
 using namespace Rcpp;
 
 int Torus(int i, int ii, int i_max);
 
 int Reflexion(int i, int ii, int i_max);
-
-int ColonizeNeigh(int ii, int jj , IntegerMatrix mat_sp,  IntegerMatrix mat_suc,
-                  NumericVector c_e, NumericVector c_l, int i_max, int j_max,
-		  double K) ;
-
-
-int KillCellDisturb(int ii, int jj, IntegerMatrix mat_sp,  double prob_distur);
-
-
-int KillCellStress(int ii, int jj, IntegerMatrix mat_sp,
-                   NumericVector c_s, NumericVector ss);
-
-int SucCell(int ii, int jj, IntegerMatrix mat_sp, IntegerMatrix mat_suc,
-             double prob_suc);
 
 double Prob_Law(double x, double y, double K);
 
@@ -38,12 +25,15 @@ public:
     Rcpp::IntegerMatrix returnSp() const;
     Rcpp::IntegerMatrix returnSuc() const;
     void update();
-    void updateCell(int i, int j);
+    void updateCell(int ii, int jj);
+    void ColonizeNeigh(int ii, int jj);
+    void KillCellDisturb(int ii, int jj);
+    void KillCellStress(int ii, int jj);
+    void SucCell(int ii, int jj);
     void iterate(unsigned int iterations);
 private:
     Rcpp::IntegerMatrix m_mat_sp;
     Rcpp::IntegerMatrix m_mat_suc;
-    Rcpp::IntegerMatrix m_otherLandscape;
     Rcpp:: NumericVector m_c_e;
     Rcpp:: NumericVector m_c_l;
     Rcpp:: NumericVector m_c_s;
@@ -62,8 +52,9 @@ int Torus(int i, int ii, int i_max){
 
  return i_n;
 }
+
 int Reflexion(int i, int ii, int i_max){
-  int i_n = ii + i;
+ int i_n = ii + i;
  if(i_n < 0) i_n = 1;
  if(i_n > i_max-1) i_n = i_max -2;
 
@@ -86,7 +77,7 @@ CellAuto::CellAuto(Rcpp::IntegerMatrix mat_sp, Rcpp::IntegerMatrix mat_suc,
 					    m_ncol(ncol),
 					    m_prob_distur(prob_distur),
 					    m_prob_suc(prob_suc),
-					    m_K(K)
+                                            m_K(K)
 {
 }
 
@@ -101,94 +92,106 @@ Rcpp::IntegerMatrix CellAuto::returnSuc() const{
 
 
 void CellAuto::iterate( unsigned int iterations ) {
-    for ( int i = 0; i < iterations; i++ ) {
-        update();
-    }
+  for ( int i = 0; i < iterations; i++ ) {
+      update();
+  }
 }
 
 
-
 void CellAuto::update() {
-// Rcpp::Rcout << "m_row and m_ncol = " << m_nrow << " and "<< m_ncol << std::endl;
-
-        for ( int ii = 0; ii < m_nrow; ii++ ) {
-            for ( int jj = 0; jj < m_ncol; jj++ ) {
-	      // Rcpp::Rcout << "ii and jj = " << ii << " and "<< jj << std::endl;
-	      CellAuto::updateCell(ii , jj);
-            }
-        }
+  for ( int r = 0; r < (m_nrow*m_ncol); r++ ) {
+int i_r = floor(R::runif(0, m_nrow));
+int j_r = floor(R::runif(0, m_ncol));
+      CellAuto::updateCell(i_r , j_r);
+  }
 }
 
 
 void CellAuto::updateCell(int ii, int jj) {
   // Rcpp::Rcout << "start colo" << std::endl;
-  m_mat_sp(ii , jj) = ColonizeNeigh(ii, jj,
-				    m_mat_sp, m_mat_suc,
-	                            m_c_e, m_c_l,
-				    m_nrow, m_ncol,
-				    m_K);
+  ColonizeNeigh(ii, jj);
   // Rcpp::Rcout << "start kill" << std::endl;
-  m_mat_sp(ii , jj) = KillCellDisturb(ii, jj, m_mat_sp, m_prob_distur);
-  m_mat_sp(ii, jj) = KillCellStress(ii, jj, m_mat_sp,
-  				    m_c_s, m_ss);
-  m_mat_suc(ii, jj) = SucCell(ii, jj, m_mat_sp, m_mat_suc, m_prob_suc);
+  KillCellDisturb(ii, jj);
+  KillCellStress(ii, jj);
+  SucCell(ii, jj);
 }
 
 
-int ColonizeNeigh(int ii, int jj , IntegerMatrix mat_sp,  IntegerMatrix mat_suc,
-                  NumericVector c_e, NumericVector c_l, int i_max, int j_max,
-		  double K) {
-  int i_n, j_n, res;
-    for( int i = -1; i < 2; i++ ) {
-        for( int j = -1; j < 2; j++ ) {
-            i_n = Torus(i, ii, i_max);
-            j_n = Reflexion(j, jj, j_max);
-
-	    if(mat_suc(ii, jj) == 1){
-	    	mat_sp(ii, jj) = Sampel_Law(ii, jj, i_n, j_n, mat_sp, c_e, K);
-             }else{
-	    	mat_sp(ii, jj) = Sampel_Law(ii, jj, i_n, j_n, mat_sp, c_l, K);
-             }
-        }
-    }
-    return mat_sp(ii, jj);
+void CellAuto::ColonizeNeigh(int ii, int jj) {
+  int i, j, i_n, j_n, res;
+int neig_r = floor(R::runif(0, 8));
+  switch ( neig_r )
+     {
+        case 1:
+           i = -1;
+           j = -1;
+           break;
+        case 2:
+           i = -1;
+           j = 0;
+           break;
+        case 3:
+           i = -1;
+           j = 1;
+           break;
+        case 4:
+           i = 0;
+           j = -1;
+           break;
+        case 5:
+           i = 0;
+           j = 1;
+           break;
+        case 6:
+           i = 1;
+           j = -1;
+           break;
+        case 7:
+           i = 1;
+           j = 0;
+           break;
+        case 8:
+           i = 1;
+           j = 1;
+           break;
+     }
+//select neighborhood cell to colonize
+  i_n = Torus(i, ii, m_nrow);
+  j_n = Reflexion(j, jj, m_ncol);
+//competition interaction depending on the successional status
+  if(m_mat_suc(i_n, j_n) == 1){
+  	m_mat_sp(i_n, j_n) = Sampel_Law(i_n, j_n, ii, jj, m_mat_sp, m_c_e, m_K);
+  }else{
+  	m_mat_sp(i_n, j_n) = Sampel_Law(i_n, j_n, ii, jj, m_mat_sp, m_c_l, m_K);
+  }
 }
 
 
-int KillCellDisturb(int ii, int jj, IntegerMatrix mat_sp,  double prob_distur){
-    int res;
-    if(R::runif(0,1) < prob_distur){
-	res = 0;
-    } else { 
-        res = mat_sp(ii , jj);
-    }
-  return res;
+void CellAuto::KillCellDisturb(int ii, int jj){
+  if(R::runif(0,1) < m_prob_distur){
+	m_mat_sp(ii , jj) = 0;
+	m_mat_suc(ii , jj) = 1;
+  }
 }
 
 
-int KillCellStress(int ii, int jj, IntegerMatrix mat_sp,
-                   NumericVector c_s, NumericVector ss){
+void CellAuto::KillCellStress(int ii, int jj){
     bool test;
     int res;
-    if(c_s[mat_sp(ii, jj)] != -100){
-	if(R::runif(0,1) < (ss[jj] * c_s[mat_sp(ii, jj)])){
-	    res = 0;
-	} else {
-            res =  mat_sp(ii , jj);
-	}     
-    } else{
-	res = 0;
+    if(m_mat_sp(ii, jj) != 0){
+	if(R::runif(0,1) < (m_ss[jj] * m_c_s[m_mat_sp(ii, jj)])){
+	    m_mat_sp(ii , jj) = 0;
+	    m_mat_suc(ii , jj) = 1;
+	}
     }
-    return res;
 }
 
-int SucCell(int ii, int jj, IntegerMatrix mat_sp, IntegerMatrix mat_suc,
-             double prob_suc){
-  int res;
-
-  res = (R::runif(0,1) < prob_suc) ? 2 : mat_suc(ii , jj);
-  if(mat_sp(ii, jj) == 0) res = 1;
-  return res;
+void CellAuto::SucCell(int ii, int jj){
+  if(m_mat_sp(ii, jj) != 0){
+     if(R::runif(0,1) < m_prob_suc){
+        m_mat_suc(ii , jj) = 2;
+     }
+  }
 }
 
 double Prob_Law(double x, double y, double K){
@@ -222,7 +225,7 @@ int Sampel_Law(int ii, int jj, int ni, int nj,
         }else{
           res = mat_sp(ii, jj);
         }
-  }   
+  }
   // Rcpp::Rcout << "val sp col " <<  res << std::endl;
 
   return res;
