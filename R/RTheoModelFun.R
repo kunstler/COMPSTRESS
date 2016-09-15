@@ -78,53 +78,41 @@ return_mat_fill_c_raster<- function(m, cc){
   d <-  dim(m)
   cc[1] <- NA
   mat <- matrix(cc[m+1], d[1], d[2])
-  print(range(mat, na.rm = TRUE))
   return(raster(mat,
+                xmn=1, xmx=d[2],
+                ymn=1, ymx=d[1]))
+}
+
+return_mat_raster<- function(m){
+  require(raster)
+  d <-  dim(m)
+  return(raster(m,
                 xmn=1, xmx=d[2],
                 ymn=1, ymx=d[1]))
 }
 
 ### plot image of landscape Succ
 
+image_return_mat<-  function(list_res, ...){
+    rast_e <-  return_mat_raster(list_res)
+    image(rast_e,axes=FALSE ,asp=1, ...)
+ }
+
 image_landscape_e<-  function(list_res, c_e){
     rast_e <-  return_mat_fill_c_raster(list_res[[1]], c_e)
     image(rast_e,axes=FALSE ,asp=1)
  }
 
-image_landscape <-  function(list_res, c_e, c_l, c_s){
+image_landscape <-  function(list_res, c_e, c_l, c_s, ...){
     rast_e <-  return_mat_fill_c_raster(list_res[[1]], c_e)
     rast_l <-  return_mat_fill_c_raster(list_res[[1]], c_l)
     rast_s <-  return_mat_fill_c_raster(list_res[[1]], c_s)
     rast.temp <- stack(rast_e,
                        rast_l,
                        rast_s)
-    plotRGB(rast.temp,scale=1,axes=FALSE ,asp=1)
+    plotRGB(rast.temp,scale=1,axes=FALSE ,asp=1, ...)
  }
 
-
-## debug segfault error
-
-fun_debug <- function(){
-list_init <- InitLandscape(GenerateRandSp(2), NN = 35, Nlandscape = 3,
-                           min_ss = 0, max_ss = 0, per_occup = 0.5)
-print("run 1")
-l_res <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
-                     list_init$c_e, list_init$c_l, list_init$c_s,
-                     list_init$ss,
-                     0.1, 0.2, K = 100, n = 5)
-print("done 1 and run 2")
-l_res <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
-                     list_init$c_e, list_init$c_l, list_init$c_s,
-                     list_init$ss,
-                     0.1, 0.2, K = 100, n = 5)
-print("done 2 and run 3")
-l_res <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
-                     list_init$c_e, list_init$c_l, list_init$c_s,
-                     list_init$ss,
-                     0.1, 0.2, K = 100, n = 5)
-print("done 3")
-
-}
 
 ## test convergence
 
@@ -139,15 +127,15 @@ eval_converg<- function(list_init, Niter, Nrun, p_d, p_s, K){
                        p_d, p_s, K , n = Nrun)
   for (i in 2:Niter){
      print(i)
-  ##    browser()
   list_res[[i + 1]] <- UpdateIterR(list_init$mat_sp, list_init$mat_suc,
                        list_init$c_e, list_init$c_l, list_init$c_s,
                        list_init$ss,
                        p_d, p_s, K , n = i*Nrun)
      ## list_res[[i+1]] <- UpdateIterR(list_res[[i]]$sp, list_res[[i]]$suc,
-     ##                      list_init$c_e, list_init$c_l, list_init$c_s,
-     ##                      list_init$ss,
-     ##                      0.1, 0.2, K = 100, n = 5)
+     ##                   list_init$c_e, list_init$c_l, list_init$c_s,
+     ##                   list_init$ss,
+     ##                   p_d, p_s, K , n = Nrun)
+     ## I do not understand why this is not working ....
   }
   return(list_res)
 }

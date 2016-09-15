@@ -119,38 +119,38 @@ void CellAuto::updateCell(int ii, int jj) {
 
 void CellAuto::ColonizeNeigh(int ii, int jj) {
   int i, j, i_n, j_n, res;
-int neig_r = floor(R::runif(0, 8));
+int neig_r = floor(R::runif(0, 8)); // PB TO CHECK DOES IT PRODUCE BETWEEN 0 and 7 or 1 and 8
   switch ( neig_r )
      {
-        case 1:
+        case 0:
            i = -1;
            j = -1;
+           break;
+        case 1:
+           i = -1;
+           j = 0;
            break;
         case 2:
            i = -1;
-           j = 0;
+           j = 1;
            break;
         case 3:
-           i = -1;
-           j = 1;
+           i = 0;
+           j = -1;
            break;
         case 4:
            i = 0;
-           j = -1;
+           j = 1;
            break;
         case 5:
-           i = 0;
-           j = 1;
+           i = 1;
+           j = -1;
            break;
         case 6:
            i = 1;
-           j = -1;
-           break;
-        case 7:
-           i = 1;
            j = 0;
            break;
-        case 8:
+        case 7:
            i = 1;
            j = 1;
            break;
